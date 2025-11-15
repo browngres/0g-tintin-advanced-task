@@ -3,18 +3,40 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
+	"math/big"
 	"os"
+	// "runtime"
+	// "time"
 
+	// "github.com/ethereum/go-ethereum/ethclient"
+	"github.com/0glabs/0g-storage-client/transfer" // 需要导入 transfer, indexer, core
 	"github.com/joho/godotenv"
 )
 
 const (
-	// FILE_SIZE_4GB   = 4 * 1024 * 1024 * 1024
-	FILE_SIZE_4MB   = 4 * 1024 * 1024  // dev
+	// TODO FILE_SIZE_4GB   = 4 * 1024 * 1024 * 1024
+	FILE_SIZE_4MB   = 4 * 1024 * 1024 // for dev
 	FILE_TO_UPLOAD  = "./TempFile.bin"
 	DOWNLOADED_FILE = "./DownloadedTempFile.bin"
+	TESTNET_INDEXER = "https://indexer-storage-testnet-turbo.0g.ai"
+	// !! 说明：`4 GB = 4*1024*1024*1024 Byte`，由于切分 10 份后的 byte 数不是整数（实际单位转换是按 1024 计算），因此实际作答改成切分 8 份。
+	FRAGMENT_SIZE = FILE_SIZE_4MB / 8
 )
 
+// 上传参数
+var (
+	fee               *big.Int = big.NewInt(10000000000000000)
+	task_size                  = 10
+	finality_required          = transfer.FileFinalized
+	expected_replica           = 1
+	skip_tx                    = true
+	num_retries                = 3
+	step              int64    = 15
+	method                     = "min"
+	full_trusted               = true
+)
+
+// 生成指定大小文件
 func generateFile(size uint64, file_name string) (string, error) {
 	data := make([]byte, size) // 单位是 Byte
 	rand.Read(data)            // 随机填充
@@ -26,8 +48,24 @@ func generateFile(size uint64, file_name string) (string, error) {
 	return file_name, nil
 }
 
+// 删除指定文件
 func deleteFile(file_name string) {
 
+}
+
+type UploadOption struct {
+	Tags             []byte
+	FinalityRequired transfer.FinalityRequirement
+	TaskSize         uint
+	ExpectedReplica  uint
+	SkipTx           bool
+	Fee              *big.Int
+	Nonce            *big.Int
+	MaxGasPrice      *big.Int
+	NRetries         int
+	Step             int64
+	Method           string
+	FullTrusted      bool // v1.0.0 的 0g-storage-client 没有这个选项
 }
 
 func main() {
@@ -37,8 +75,9 @@ func main() {
 	}
 	TESTNET_RPC := os.Getenv("TESTNET_RPC")
 	PRIVATE_KEY := os.Getenv("PRIVATE_KEY")
-	fmt.Println(TESTNET_RPC, PRIVATE_KEY)
+	fmt.Printf("%v\n%v\n", TESTNET_RPC, PRIVATE_KEY)
 
+	/*
 	// 生成临时文件
 	temp_file, err := generateFile(FILE_SIZE_4MB, FILE_TO_UPLOAD)
 	if err != nil {
@@ -46,12 +85,49 @@ func main() {
 		return
 	}
 
+	// 获取文件大小
 	f, err := os.Stat(temp_file)
 	if err == nil {
-		fmt.Println("Created size:", f.Size())
+		fmt.Println("Created size(Byte):", f.Size())
 	}
+	*/
+
+	// TODO go_routines = runtime.GOMAXPROCS(0)
 
 	// 上传
+	/*
+	构建一个 `transfer.UploadOption` ，然后把文件读到内存里面。
+	初始化一个 uploader，然后调用 `SplitableUpload`
+	最终获取到 root，单个文件最大是 4G，如果超过 4G 会有多个 root。
+	*/
+	opt := UploadOption{
+		Tags:             []byte{},
+		FinalityRequired: finality_required,
+		TaskSize:         uint(task_size),
+		ExpectedReplica:  uint(expected_replica),
+		SkipTx:           skip_tx,
+		Fee:              fee,
+		Nonce:            big.NewInt(0),
+		MaxGasPrice:      big.NewInt(0),
+		NRetries:         num_retries,
+		Step:             step,
+		Method:           method,
+		FullTrusted:      full_trusted,
+	}
+	fmt.Println(opt)
+
+	// 超时
+	// ctx := context.Background()
+	// var cancel context.CancelFunc
+	// ctx, cancel = context.WithTimeout(ctx, timeout)
+	// defer cancel()
+
+	// 连接到 RPC
+	// client, err := ethclient.Dial(TESTNET_RPC)
+	// if err != nil {
+	//     fmt.Printf("Failed to connect: %v", err)
+	// }
+	// defer client.Close()
 
 	// 下载
 
