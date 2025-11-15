@@ -13,6 +13,7 @@
 **作答**：`Task2\main.go`
 
 `go install github.com/joho/godotenv/cmd/godotenv@latest`
+`go get github.com/ethereum/go-ethereum/ethclient`
 
 **备用链接**：
 
