@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"fmt"
 	"math"
 	"math/big"
@@ -63,6 +64,17 @@ func generateFile(size uint64, file_name string) (string, error) {
 // 删除指定文件
 func deleteFile(file_name string) {
 
+}
+
+// 计算文件 hash
+func hashFile(file_name string) ([]byte, error) {
+	data, err := os.ReadFile(file_name) // 一次性读入内存，适用小文件。大文件应该用 `io.Copy`` 和 `sha256.New()`，边读边 hash
+	if err != nil {
+		fmt.Println("Error hash file")
+		return nil, err
+	}
+	sum := sha256.Sum256(data)
+	return sum[:], nil
 }
 
 // 参数相关结构体
@@ -253,7 +265,7 @@ func main() {
 		Step:             uploadArgs.step,
 		Method:           uploadArgs.method,
 	}
-
+	fmt.Println("Upload start")
 	_, roots, err := uploader.SplitableUpload(ctx, file, uploadArgs.fragmentSize, opt_old)
 	if err != nil {
 		fmt.Println("Failed to upload file")
@@ -276,6 +288,7 @@ func main() {
 	*/
 
 	// 前面已经创建过 indexClient 了，不用重复创建
+	fmt.Println("Download start")
 	roots_to_download := s
 	if err := indexerClient.DownloadFragments(ctx, roots_to_download, DOWNLOADED_FILE, false); err != nil {
 		fmt.Printf("Failed to download file")
@@ -283,7 +296,35 @@ func main() {
 
 	/* ================= */
 	// 检查文件是否相同
-	// sha256
+
+	// 文件必须存在
+	fmt.Println("Check start")
+	_, err = os.Stat(DOWNLOADED_FILE)
+	if os.IsNotExist(err) {
+		fmt.Println("File not downloaded")
+		return
+	}
+
+	// * sha256
+	h1, _ := hashFile(FILE_TO_UPLOAD)
+	fmt.Printf("%s SHA256: %x\n", FILE_TO_UPLOAD, h1)
+	h2, _ := hashFile(DOWNLOADED_FILE)
+	fmt.Printf("%s SHA256: %x\n", DOWNLOADED_FILE, h2)
+	if string(h1) == string(h2) {
+		fmt.Println("SHA256 match")
+	}
+
+	// * Merkle Root
+	r1, err1 := core.MerkleRoot(FILE_TO_UPLOAD)
+	r2, err2 := core.MerkleRoot(DOWNLOADED_FILE)
+	if err1 != nil || err2 != nil {
+		fmt.Println("Failed to calculate Merkle root.")
+	}
+	fmt.Printf("%s Merkle Root: %s\n", FILE_TO_UPLOAD, r1.String())
+	fmt.Printf("%s Merkle Root: %s\n", DOWNLOADED_FILE, r2.String())
+	if r1 == r2 {
+		fmt.Println("Merkle Root match")
+	}
 
 	// 删除临时文件
 }
