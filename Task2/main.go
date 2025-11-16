@@ -16,7 +16,7 @@ import (
 	"github.com/0glabs/0g-storage-client/common/blockchain"
 	"github.com/0glabs/0g-storage-client/core"
 	"github.com/0glabs/0g-storage-client/indexer"
-	"github.com/0glabs/0g-storage-client/transfer" // 需要导入 transfer, indexer, core
+	"github.com/0glabs/0g-storage-client/transfer"
 	"github.com/joho/godotenv"
 )
 
@@ -65,6 +65,7 @@ func generateFile(size uint64, file_name string) (string, error) {
 func deleteFile(file_name string) {
 	if err := os.Remove(file_name); err != nil {
 		fmt.Printf("Failed to delete file %s: %v\n", file_name, err)
+		return
 	}
 	fmt.Printf("Deleted file: %s ", file_name)
 }
@@ -273,8 +274,8 @@ func main() {
 	if err != nil {
 		fmt.Println("Failed to upload file")
 	}
-	// 如果上传的文件小于等于 4G，所以 len(roots) == 1
-	// 如果切分了多个，也会有多个 root
+	// 如果上传的文件小于等于 4G，则 len(roots) == 1
+	// 如果切分了多个或者上传单文件大于 4G，则会有多个 root
 	s := make([]string, len(roots))
 	for i, root := range roots {
 		s[i] = root.String()
@@ -286,8 +287,8 @@ func main() {
 	// 下载
 
 	/*
-		创建 indexerClient，调用 Download 或者 DownloadFragments 方法（单个文件或者切分后的 Fragments）
-		DownloadFragments 中的 `io.Copy(outFile, inFile)` 是不断追加的，因此会拼接成最终文件。
+		创建 indexerClient，调用 Download (单个文件)或者 DownloadFragments（切分后的 Fragments）方法。
+		DownloadFragments 中的 `io.Copy(outFile, inFile)` 是追加写入，因此会拼接成最终文件。
 	*/
 
 	// 前面已经创建过 indexClient 了，不用重复创建
