@@ -14,6 +14,7 @@ import (
 	// "github.com/ethereum/go-ethereum/ethclient"
 	"github.com/0glabs/0g-storage-client/common/blockchain"
 	"github.com/0glabs/0g-storage-client/core"
+	"github.com/0glabs/0g-storage-client/indexer"
 	"github.com/0glabs/0g-storage-client/transfer" // 需要导入 transfer, indexer, core
 	"github.com/joho/godotenv"
 )
@@ -55,7 +56,7 @@ func generateFile(size uint64, file_name string) (string, error) {
 			return file_name, err
 		}
 	}
-	fmt.Println("Created size(Byte):", f.Size())
+	fmt.Println("Temp file size(Byte):", f.Size())
 	return file_name, err // 如果文件存在， err == nil
 }
 
@@ -119,15 +120,15 @@ func main() {
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithTimeout(ctx, timeout)
 	defer cancel()
-	_ = ctx
 
 	// 读取环境变量
 	if err := godotenv.Load("../.env"); err != nil {
 		fmt.Println("Error loading .env file.")
+		return
 	}
 	TESTNET_RPC := os.Getenv("TESTNET_RPC")
 	PRIVATE_KEY := os.Getenv("PRIVATE_KEY")
-	fmt.Printf("%v\n%v\n", TESTNET_RPC, PRIVATE_KEY)
+	// fmt.Printf("%v\n%v\n", TESTNET_RPC, PRIVATE_KEY)
 
 	// 连接到 RPC
 
@@ -141,6 +142,12 @@ func main() {
 	// * 因为 uploader 使用 `web3go.Client`， 所以必须按照 SDK 使用 web3go
 	w3client := blockchain.MustNewWeb3(TESTNET_RPC, PRIVATE_KEY)
 	defer w3client.Close()
+
+	if block_height , err := w3client.Eth.BlockNumber(); err == nil {
+		fmt.Printf("Current Block Height: %v \n", block_height)
+	} 	else {
+		fmt.Println(err)
+	}
 
 	// 生成临时文件
 	temp_file, err := generateFile(FILE_SIZE_4MB, FILE_TO_UPLOAD)
@@ -199,17 +206,58 @@ func main() {
 		Method:           uploadArgs.method,
 		FullTrusted:      uploadArgs.fullTrusted,
 	}
-	_ = opt
 	// fmt.Println(opt)
 
 	// 打开文件
 	file, err := core.Open(temp_file)
 	if err != nil {
 		fmt.Println("Failed to open file")
+		return
 	}
 	defer file.Close()
 
-	// 实例化 uploader
+	// 实例化 uploader，连接 indexer，选择节点
+	indexerClient, err := indexer.NewClient(TESTNET_INDEXER)
+	if err != nil {
+		fmt.Println("Failed to initialize indexer client")
+		return
+	}
+	// v1.0.0 的 0g-storage-client 没有 opt.FullTrusted 选项
+	// up, err := indexerClient.NewUploaderFromIndexerNodes(ctx, file.NumSegments(), w3client, opt.ExpectedReplica, nil, opt.Method, opt.FullTrusted)
+	uploader, err := indexerClient.NewUploaderFromIndexerNodes(ctx, file.NumSegments(), w3client, opt.ExpectedReplica, nil, opt.Method)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("Failed to initialize uploader")
+		return
+	}
+	closer := indexerClient.Close
+	defer closer()
+
+	// 执行上传
+	uploader.WithRoutines(uploadArgs.routines)
+	// v1.0.0 的 0g-storage-client 没有 opt.FullTrusted 选项
+	// 因为类型问题，这里不得不重新构建一个不带 FullTrusted 的。
+	opt_old := transfer.UploadOption{
+		Tags:             []byte{},
+		FinalityRequired: finality_required,
+		TaskSize:         uploadArgs.taskSize,
+		ExpectedReplica:  uploadArgs.expectedReplica,
+		SkipTx:           uploadArgs.skipTx,
+		Fee:              fee_wei,
+		Nonce:            big.NewInt(0),
+		MaxGasPrice:      big.NewInt(0),
+		NRetries:         uploadArgs.nRetries,
+		Step:             uploadArgs.step,
+		Method:           uploadArgs.method,
+	}
+
+	_, roots, err := uploader.SplitableUpload(ctx, file, uploadArgs.fragmentSize, opt_old)
+	if err != nil {
+		fmt.Println("Failed to upload file")
+	}
+	// 由于上传的文件小于等于 4G，所以 len(roots) == 1
+	fmt.Printf("file uploaded, root = %v", roots[0])
+
 
 	// 下载
 
