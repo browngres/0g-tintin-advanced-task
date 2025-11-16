@@ -34,3 +34,6 @@ go.work.sum
 # Temp data
 TempFile.bin
 DownloadedTempFile.bin
+
+# dev log
+dev_log.log

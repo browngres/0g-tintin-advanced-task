@@ -143,9 +143,9 @@ func main() {
 	w3client := blockchain.MustNewWeb3(TESTNET_RPC, PRIVATE_KEY)
 	defer w3client.Close()
 
-	if block_height , err := w3client.Eth.BlockNumber(); err == nil {
+	if block_height, err := w3client.Eth.BlockNumber(); err == nil {
 		fmt.Printf("Current Block Height: %v \n", block_height)
-	} 	else {
+	} else {
 		fmt.Println(err)
 	}
 
@@ -156,6 +156,7 @@ func main() {
 		return
 	}
 
+	/* ##################### */
 	// 上传
 	/*
 		构建一个 `transfer.UploadOption` ，然后把文件读到内存里面。
@@ -233,6 +234,8 @@ func main() {
 	closer := indexerClient.Close
 	defer closer()
 
+	// _ = uploader
+
 	// 执行上传
 	uploader.WithRoutines(uploadArgs.routines)
 	// v1.0.0 的 0g-storage-client 没有 opt.FullTrusted 选项
@@ -255,8 +258,14 @@ func main() {
 	if err != nil {
 		fmt.Println("Failed to upload file")
 	}
-	// 由于上传的文件小于等于 4G，所以 len(roots) == 1
-	fmt.Printf("file uploaded, root = %v", roots[0])
+	// 如果上传的文件小于等于 4G，所以 len(roots) == 1
+	// 如果切分了多个，也会有多个 root
+	s := make([]string, len(roots))
+	for i, root := range roots {
+		s[i] = root.String()
+		fmt.Printf("root[%v] = %v \n", i, s[i])
+	}
+	fmt.Printf("file uploaded in %v fragments.\n", len(roots))
 
 
 	// 下载

@@ -20,6 +20,18 @@
 >
 > `go install github.com/0glabs/0g-storage-client`
 
+**测试上传**：
+
+> (4MB 切 8 份) txHash=0xa5c941293f1ce27823f07c39f44c5035a5507a4e3a0d7514aec921ce09ed6a18
+> root[0] = 0x8f6a2bc39677e8c0123b11295f92b4d2248ea2c9fa4b83505c491fc51376260e
+> root[1] = 0xc50e1f9c84d2538cbb5fa535237c40cd68a7169a43385bead7cb0cc0b845e286
+> root[2] = 0xa69bf9bbb31db25bf1bf0b0151f2bb6f31205101b7fac023ab876d990b16162d
+> root[3] = 0x9b447ae972f49801d99b8f55687693209ca6334d694c357ddbce4f5616881f20
+> root[4] = 0x68c43b16b4c2e7970ad4391675e2dfb3ee56a4e8d9518ba0762ede697eba664a
+> root[5] = 0xcf55c4c5fcddeb3bfc9367eecf5070edd0f0da60130589309ed06baef7a96d20
+> root[6] = 0xdcf139c8bc9e18497522f19a713f5ba4cbd127771fa0f0f26f8f82ecb9132ca6
+> root[7] = 0xe46e91fad97638de13d34024c78c60ff8286a836fa2c4a17f8941689dcac3908
+
 **备用链接**：
 
 -   [0g-storage-client Go SDK](https://github.com/0gfoundation/0g-storage-client)
