@@ -12,15 +12,36 @@
 
 **作答**：`Task2\main.go`
 
-**说明**：`4 GB = 4*1024*1024*1024 Byte`，由于切分 10 份后的 byte 数不是整数（实际单位转换是按 1024 计算），因此实际作答改成切分 8 份。
+**运行方法**：
 
 > 必须使用 go <= 1.23
->
-> `go install github.com/joho/godotenv/cmd/godotenv@latest`
->
-> `go install github.com/0glabs/0g-storage-client`
 
-**测试上传**：
+安装项目依赖（Go 会自动处理 go.mod 中的依赖）：
+
+```bash
+go mod tidy
+```
+
+项目依赖以下包（Go 会自动下载）：
+
+-   `github.com/0glabs/0g-storage-client v1.0.0`
+-   `github.com/joho/godotenv v1.5.1`
+
+进入 Task2 目录后运行：
+
+```bash
+cd Task2
+go run ./main.go
+```
+
+windows 需要将 `/` 换成 `\`
+
+**说明**：
+
+-   `4 GB = 4*1024*1024*1024 Byte`，由于切分 10 份后的 byte 数不是整数（实际单位转换是按 1024 计算），因此实际作答改成切分 8 份。
+-   `github.com/0glabs/` 已经更改成 `github.com/0gfoundation/` 但是仓库 go.mod 没有改。因此代码中目前仍需按前者导入
+
+**测试上传结果**：
 
 > (4MB 切 8 份) txHash=0xa5c941293f1ce27823f07c39f44c5035a5507a4e3a0d7514aec921ce09ed6a18
 > root[0] = 0x8f6a2bc39677e8c0123b11295f92b4d2248ea2c9fa4b83505c491fc51376260e
@@ -31,6 +52,9 @@
 > root[5] = 0xcf55c4c5fcddeb3bfc9367eecf5070edd0f0da60130589309ed06baef7a96d20
 > root[6] = 0xdcf139c8bc9e18497522f19a713f5ba4cbd127771fa0f0f26f8f82ecb9132ca6
 > root[7] = 0xe46e91fad97638de13d34024c78c60ff8286a836fa2c4a17f8941689dcac3908
+
+在浏览器查看此交易的 log 可以看到 8 次上传的记录，root 也对应：
+[Transaction](https://chainscan-galileo.0g.ai/tx/0xa5c941293f1ce27823f07c39f44c5035a5507a4e3a0d7514aec921ce09ed6a18?tab=logs)
 
 **备用链接**：
 
@@ -43,9 +67,9 @@
 
 ## go 依赖踩坑
 
-> `github.com/0glabs/` 已经更改成 `github.com/0gfoundation/` 但是仓库 go.mod 没有改。因此代码中目前仍需按前者导入
-
 一开始使用 go1.25 ，依赖的版本踩了坑。跟着 AI 排查以及试图寻求更新方案很长时间。最后只能降级 go
+
+**原因分析**：
 
 > `github.com/0gfoundation/0g-storage-client` 依赖 `go-ethereum` 和 `openweb3/go-rpc-provider` > `go-ethereum` v1.14.x 只能在 Go ≤1.22 下工作。
 > `openweb3/go-rpc-provider` 没有更新维护。只能在 `go-ethereum` v1.14.x 上工作
@@ -65,6 +89,7 @@ XXX\pkg\mod\github.com\openweb3\go-rpc-provider@v1.1.1\handler.go:370:55: cannot
 XXX\pkg\mod\github.com\openweb3\go-rpc-provider@v1.1.1\metrics.go:41:9: cannot use metrics.GetOrRegisterTimer(m, nil) (value of type *"github.com/ethereum/go-ethereum/metrics".Timer) as "github.com/ethereum/go-ethereum/metrics".Timer value in return statement
 ```
 
+**解决方案**：
 最后无奈安装低版本的 go，例如 `1.22.8`。如果已经有 go，安装共存版本：
 
 ```bash
