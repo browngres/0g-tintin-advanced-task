@@ -1,14 +1,18 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"fmt"
 	"math/big"
 	"os"
-	// "runtime"
-	// "time"
+
+	"runtime"
+	"time"
 
 	// "github.com/ethereum/go-ethereum/ethclient"
+	"github.com/0glabs/0g-storage-client/common/blockchain"
+	"github.com/0glabs/0g-storage-client/core"
 	"github.com/0glabs/0g-storage-client/transfer" // 需要导入 transfer, indexer, core
 	"github.com/joho/godotenv"
 )
@@ -34,18 +38,23 @@ var (
 	step              int64    = 15
 	method                     = "min"
 	full_trusted               = true
+	timeout                    = time.Duration(300) * time.Second
 )
 
 // 生成指定大小文件
 func generateFile(size uint64, file_name string) (string, error) {
-	data := make([]byte, size) // 单位是 Byte
-	rand.Read(data)            // 随机填充
-
-	if err := os.WriteFile(file_name, data, os.ModePerm); err != nil {
-		fmt.Println("Failed to write file")
-		return file_name, err
+	// 如果文件已经存在则直接返回，不存在则创建
+	f, err := os.Stat(file_name)
+	if os.IsNotExist(err) {
+		data := make([]byte, size) // 单位是 Byte
+		rand.Read(data)            // 随机填充
+		if err := os.WriteFile(file_name, data, os.ModePerm); err != nil {
+			fmt.Println("Failed to write file")
+			return file_name, err
+		}
 	}
-	return file_name, nil
+	fmt.Println("Created size(Byte):", f.Size())
+	return file_name, err // 如果文件存在， err == nil
 }
 
 // 删除指定文件
@@ -69,6 +78,15 @@ type UploadOption struct {
 }
 
 func main() {
+	// 超时
+	ctx := context.Background()
+	var cancel context.CancelFunc
+	ctx, cancel = context.WithTimeout(ctx, timeout)
+	defer cancel()
+	_ = ctx
+
+	time.Sleep(time.Duration(6) * time.Second)
+
 	// 读取环境变量
 	if err := godotenv.Load("../.env"); err != nil {
 		fmt.Println("Error loading .env file.")
@@ -77,7 +95,19 @@ func main() {
 	PRIVATE_KEY := os.Getenv("PRIVATE_KEY")
 	fmt.Printf("%v\n%v\n", TESTNET_RPC, PRIVATE_KEY)
 
-	/*
+	// 连接到 RPC
+
+	// * 使用 go-ethereum
+	// client, err := ethclient.Dial(TESTNET_RPC)
+	// if err != nil {
+	//     fmt.Printf("Failed to connect: %v", err)
+	// }
+	// defer client.Close()
+
+	// * 因为 uploader 使用 `web3go.Client`， 所以必须按照 SDK 使用 web3go
+	w3client := blockchain.MustNewWeb3(TESTNET_RPC, PRIVATE_KEY)
+	defer w3client.Close()
+
 	// 生成临时文件
 	temp_file, err := generateFile(FILE_SIZE_4MB, FILE_TO_UPLOAD)
 	if err != nil {
@@ -85,21 +115,15 @@ func main() {
 		return
 	}
 
-	// 获取文件大小
-	f, err := os.Stat(temp_file)
-	if err == nil {
-		fmt.Println("Created size(Byte):", f.Size())
-	}
-	*/
-
 	// TODO go_routines = runtime.GOMAXPROCS(0)
 
 	// 上传
 	/*
-	构建一个 `transfer.UploadOption` ，然后把文件读到内存里面。
-	初始化一个 uploader，然后调用 `SplitableUpload`
-	最终获取到 root，单个文件最大是 4G，如果超过 4G 会有多个 root。
+		构建一个 `transfer.UploadOption` ，然后把文件读到内存里面。
+		初始化一个 uploader，然后调用 `SplitableUpload`
+		最终获取到 root，单个文件最大是 4G，如果超过 4G 会有多个 root。
 	*/
+
 	opt := UploadOption{
 		Tags:             []byte{},
 		FinalityRequired: finality_required,
@@ -114,20 +138,15 @@ func main() {
 		Method:           method,
 		FullTrusted:      full_trusted,
 	}
-	fmt.Println(opt)
+	_ = opt
+	// fmt.Println(opt)
 
-	// 超时
-	// ctx := context.Background()
-	// var cancel context.CancelFunc
-	// ctx, cancel = context.WithTimeout(ctx, timeout)
-	// defer cancel()
-
-	// 连接到 RPC
-	// client, err := ethclient.Dial(TESTNET_RPC)
-	// if err != nil {
-	//     fmt.Printf("Failed to connect: %v", err)
-	// }
-	// defer client.Close()
+	// 打开文件
+	file, err := core.Open(temp_file)
+	if err != nil {
+		fmt.Println("Failed to open file")
+	}
+	defer file.Close()
 
 	// 下载
 
