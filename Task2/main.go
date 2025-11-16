@@ -227,7 +227,7 @@ func main() {
 	// up, err := indexerClient.NewUploaderFromIndexerNodes(ctx, file.NumSegments(), w3client, opt.ExpectedReplica, nil, opt.Method, opt.FullTrusted)
 	uploader, err := indexerClient.NewUploaderFromIndexerNodes(ctx, file.NumSegments(), w3client, opt.ExpectedReplica, nil, opt.Method)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err) // indexer 不在线会返回 nginx 提供的 504 页面
 		fmt.Println("Failed to initialize uploader")
 		return
 	}
@@ -267,9 +267,21 @@ func main() {
 	}
 	fmt.Printf("file uploaded in %v fragments.\n", len(roots))
 
-
+	/* --------------- */
 	// 下载
 
+	/*
+		创建 indexerClient，调用 Download 或者 DownloadFragments 方法（单个文件或者切分后的 Fragments）
+		DownloadFragments 中的 `io.Copy(outFile, inFile)` 是不断追加的，因此会拼接成最终文件。
+	*/
+
+	// 前面已经创建过 indexClient 了，不用重复创建
+	roots_to_download := s
+	if err := indexerClient.DownloadFragments(ctx, roots_to_download, DOWNLOADED_FILE, false); err != nil {
+		fmt.Printf("Failed to download file")
+	}
+
+	/* ================= */
 	// 检查文件是否相同
 	// sha256
 
