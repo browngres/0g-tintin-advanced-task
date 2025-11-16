@@ -63,7 +63,10 @@ func generateFile(size uint64, file_name string) (string, error) {
 
 // 删除指定文件
 func deleteFile(file_name string) {
-
+	if err := os.Remove(file_name); err != nil {
+		fmt.Printf("Failed to delete file %s: %v\n", file_name, err)
+	}
+	fmt.Printf("Deleted file: %s ", file_name)
 }
 
 // 计算文件 hash
@@ -327,4 +330,7 @@ func main() {
 	}
 
 	// 删除临时文件
+	deleteFile(FILE_TO_UPLOAD)
+	deleteFile(DOWNLOADED_FILE)
+
 }
