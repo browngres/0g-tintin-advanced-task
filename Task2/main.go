@@ -115,21 +115,6 @@ type uploadArgument struct {
 	timeout time.Duration
 }
 
-type UploadOption struct {
-	Tags             []byte
-	FinalityRequired transfer.FinalityRequirement
-	TaskSize         uint
-	ExpectedReplica  uint
-	SkipTx           bool
-	Fee              *big.Int
-	Nonce            *big.Int
-	MaxGasPrice      *big.Int
-	NRetries         int
-	Step             int64
-	Method           string
-	FullTrusted      bool // v1.0.0 的 0g-storage-client 没有这个选项
-}
-
 func main() {
 	// 超时
 	ctx := context.Background()
@@ -209,7 +194,7 @@ func main() {
 	// 构建 UploadOption
 	fee_wei, _ := new(big.Float).Mul(new(big.Float).SetFloat64(uploadArgs.fee), big.NewFloat(math.Pow10(18))).Int(nil)
 
-	opt := UploadOption{
+	opt := transfer.UploadOption{
 		Tags:             []byte{},          // "0x" 解析后是空字符串
 		FinalityRequired: finality_required, // 没有用 uploadArgs
 		TaskSize:         uploadArgs.taskSize,
@@ -239,9 +224,7 @@ func main() {
 		fmt.Println("Failed to initialize indexer client")
 		return
 	}
-	// v1.0.0 的 0g-storage-client 没有 opt.FullTrusted 选项
-	// up, err := indexerClient.NewUploaderFromIndexerNodes(ctx, file.NumSegments(), w3client, opt.ExpectedReplica, nil, opt.Method, opt.FullTrusted)
-	uploader, err := indexerClient.NewUploaderFromIndexerNodes(ctx, file.NumSegments(), w3client, opt.ExpectedReplica, nil, opt.Method)
+	uploader, err := indexerClient.NewUploaderFromIndexerNodes(ctx, file.NumSegments(), w3client, opt.ExpectedReplica, nil, opt.Method, opt.FullTrusted)
 	if err != nil {
 		fmt.Println(err) // indexer 不在线会返回 nginx 提供的 504 页面
 		fmt.Println("Failed to initialize uploader")
@@ -254,23 +237,8 @@ func main() {
 
 	// 执行上传
 	uploader.WithRoutines(uploadArgs.routines)
-	// v1.0.0 的 0g-storage-client 没有 opt.FullTrusted 选项
-	// 因为类型问题，这里不得不重新构建一个不带 FullTrusted 的。
-	opt_old := transfer.UploadOption{
-		Tags:             []byte{},
-		FinalityRequired: finality_required,
-		TaskSize:         uploadArgs.taskSize,
-		ExpectedReplica:  uploadArgs.expectedReplica,
-		SkipTx:           uploadArgs.skipTx,
-		Fee:              fee_wei,
-		Nonce:            big.NewInt(0),
-		MaxGasPrice:      big.NewInt(0),
-		NRetries:         uploadArgs.nRetries,
-		Step:             uploadArgs.step,
-		Method:           uploadArgs.method,
-	}
 	fmt.Println("Upload start")
-	_, roots, err := uploader.SplitableUpload(ctx, file, uploadArgs.fragmentSize, opt_old)
+	_, roots, err := uploader.SplitableUpload(ctx, file, uploadArgs.fragmentSize, opt)
 	if err != nil {
 		fmt.Println("Failed to upload file")
 	}
