@@ -13,10 +13,10 @@ import (
 	"time"
 
 	// "github.com/ethereum/go-ethereum/ethclient"
-	"github.com/0glabs/0g-storage-client/common/blockchain"
-	"github.com/0glabs/0g-storage-client/core"
-	"github.com/0glabs/0g-storage-client/indexer"
-	"github.com/0glabs/0g-storage-client/transfer"
+	"github.com/0gfoundation/0g-storage-client/common/blockchain"
+	"github.com/0gfoundation/0g-storage-client/core"
+	"github.com/0gfoundation/0g-storage-client/indexer"
+	"github.com/0gfoundation/0g-storage-client/transfer"
 	"github.com/joho/godotenv"
 )
 

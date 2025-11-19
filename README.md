@@ -24,7 +24,7 @@ go mod tidy
 
 项目依赖以下包（Go 会自动下载）：
 
--   `github.com/0glabs/0g-storage-client v1.0.0`
+-   `github.com/0gfoundation/0g-storage-client v1.2.1`
 -   `github.com/joho/godotenv v1.5.1`
 
 进入 Task2 目录后运行：
@@ -39,7 +39,6 @@ windows 需要将 `/` 换成 `\`
 **说明**：
 
 -   `4 GB = 4*1024*1024*1024 Byte`，由于切分 10 份后的 byte 数不是整数（实际单位转换是按 1024 计算），因此实际作答改成切分 8 份。
--   `github.com/0glabs/` 已经更改成 `github.com/0gfoundation/` 但是仓库 go.mod 没有改。因此代码中目前仍需按前者导入
 
 **测试上传结果**：
 
