@@ -299,7 +299,7 @@ func main() {
 	}
 
 	// 删除临时文件
-	deleteFile(FILE_TO_UPLOAD)
-	deleteFile(DOWNLOADED_FILE)
+	// deleteFile(FILE_TO_UPLOAD)
+	// deleteFile(DOWNLOADED_FILE)
 
 }

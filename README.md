@@ -14,8 +14,6 @@
 
 **运行方法**：
 
-> 必须使用 go <= 1.23
-
 安装项目依赖（Go 会自动处理 go.mod 中的依赖）：
 
 ```bash
@@ -39,10 +37,14 @@ windows 需要将 `/` 换成 `\`
 **说明**：
 
 -   `4 GB = 4*1024*1024*1024 Byte`，由于切分 10 份后的 byte 数不是整数（实际单位转换是按 1024 计算），因此实际作答改成切分 8 份。
+-   开发过程中为了减少等待时间，使用 4MB 进行测试。
+-   上传下载均在 `main.go` 中。文件上传后，可以看到输出的 tx 信息和 root。
+-   重复运行（没有执行最后两行的删除文件）可以证明，文件重复上传，不需要重新发送 tx，付费。而且可以成功下载。
 
 **测试上传结果**：
 
-> (4MB 切 8 份) txHash=0xa5c941293f1ce27823f07c39f44c5035a5507a4e3a0d7514aec921ce09ed6a18
+> (4MB 切 8 份)
+> txHash=0xa5c941293f1ce27823f07c39f44c5035a5507a4e3a0d7514aec921ce09ed6a18
 > root[0] = 0x8f6a2bc39677e8c0123b11295f92b4d2248ea2c9fa4b83505c491fc51376260e
 > root[1] = 0xc50e1f9c84d2538cbb5fa535237c40cd68a7169a43385bead7cb0cc0b845e286
 > root[2] = 0xa69bf9bbb31db25bf1bf0b0151f2bb6f31205101b7fac023ab876d990b16162d
@@ -65,6 +67,8 @@ windows 需要将 `/` 换成 `\`
 -   [0g-storage-go-starter-kit](https://github.com/0gfoundation/0g-storage-go-starter-kit)
 
 ## go 依赖踩坑
+
+> 2025-11-16 后 0g-storage-client 依赖版本更新。不再有这个问题。没错，就是在我踩完坑之后。马上修复了！
 
 一开始使用 go1.25 ，依赖的版本踩了坑。跟着 AI 排查以及试图寻求更新方案很长时间。最后只能降级 go
 
