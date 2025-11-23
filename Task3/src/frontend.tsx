@@ -5,16 +5,45 @@
  * It is included in `src/index.html`.
  */
 
-import { createRoot } from "react-dom/client";
-import { App } from "./App";
+import { App } from "./App"
+import React from "react"
+import { createRoot } from "react-dom/client"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { WagmiProvider } from "wagmi"
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit"
+
+import { getDefaultConfig } from "@rainbow-me/rainbowkit"
+import { zeroGTestnet } from "viem/chains"
+// viem 已经内置了 '0G Galileo Testnet'
+
+export const config = getDefaultConfig({
+  appName: "0G Broker demo",
+  projectId: "YOUR_PROJECT_ID",
+  chains: [zeroGTestnet],
+  ssr: true,
+})
+
+const queryClient = new QueryClient()
+
+const app = (
+  <React.StrictMode>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <App />
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  </React.StrictMode>
+)
 
 function start() {
-  const root = createRoot(document.getElementById("root")!);
-  root.render(<App />);
+  const root = createRoot(document.getElementById("root")!)
+  root.render(app)
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", start);
+  document.addEventListener("DOMContentLoaded", start)
 } else {
-  start();
+  start()
 }

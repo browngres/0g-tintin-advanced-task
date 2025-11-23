@@ -2,6 +2,7 @@ import "./index.css";
 
 import logo from "./logo.svg";
 import reactLogo from "./react.svg";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export function App() {
   return (
@@ -23,9 +24,11 @@ export function App() {
       <p>
         Edit <code className="bg-[#1a1a1a] px-2 py-1 rounded font-mono">src/App.tsx</code> and save to test HMR
       </p>
-
+      <ConnectButton />
     </div>
+
   );
+
 }
 
 export default App;
