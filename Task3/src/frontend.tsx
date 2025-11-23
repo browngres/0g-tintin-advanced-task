@@ -8,11 +8,14 @@
 import { App } from "./App"
 import React from "react"
 import { createRoot } from "react-dom/client"
+
+// Rainbowkit 相关
+import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { WagmiProvider } from "wagmi"
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit"
+import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit"
 
-import { getDefaultConfig } from "@rainbow-me/rainbowkit"
+
 import { zeroGTestnet } from "viem/chains"
 // viem 已经内置了 '0G Galileo Testnet'
 
