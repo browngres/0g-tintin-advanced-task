@@ -1,6 +1,8 @@
 import { serve } from "bun";
 import index from "./index.html";
 
+// TODO 存 broker 实例
+
 const server = serve({
   routes: {
     // Serve index.html for all unmatched routes.
@@ -27,6 +29,17 @@ const server = serve({
         message: `Hello, ${name}!`,
       });
     },
+
+    // Health check endpoint
+    "/api/health": {
+      GET() {
+        return Response.json({
+          status: "ok",
+          timestamp: new Date().toISOString(),
+        });
+      },
+    }
+
   },
 
   development: process.env.NODE_ENV !== "production" && {

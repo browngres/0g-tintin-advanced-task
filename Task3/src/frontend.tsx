@@ -32,7 +32,7 @@ const app = (
   <React.StrictMode>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider coolMode>
           <App />
         </RainbowKitProvider>
       </QueryClientProvider>
