@@ -35,7 +35,8 @@ export function App() {
       try {
         const provider = new BrowserProvider(walletClient);
         const signer = await provider.getSigner();
-        const instance = await createZGComputeNetworkBroker(signer);
+        const instance = 666
+        // const instance = await createZGComputeNetworkBroker(signer);
         setBroker(instance);
         console.log("Broker 初始化成功");
       } catch (err) {
