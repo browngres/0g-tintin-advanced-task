@@ -8,10 +8,20 @@ import AccountTab from './components/AccountTab';
 import ServiceTab from './components/ServiceTab';
 import ChatTab from './components/ChatTab';
 import { useState } from 'react';
+import { useAccount, useWalletClient } from "wagmi";
 
 export function App() {
   // 新增：三个 tab 的状态
   const [activeTab, setActiveTab] = useState<'account' | 'service' | 'chat'>('account');
+
+  const { isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
+
+  // 基础状态
+  const [broker, setBroker] = useState<any>(null);
+  const [message, setMessage] = useState("");
+  const [selectedProvider, setSelectedProvider] = useState<any>(null);
+
 
   return (
     <div className="mx-auto p-8 text-center relative z-10 min-w-250">
@@ -36,6 +46,11 @@ export function App() {
 
       <div className="flex justify-center items-center gap-8 mb-8">
         <ConnectButton />
+        {!isConnected && (
+          <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 shadow-sm">
+            <p className="text-lg text-yellow-800">请先连接钱包</p>
+          </div>
+        )}
       </div>
 
       {/* Tabs: 左侧纵向 tab 列，右侧内容区域 */}
