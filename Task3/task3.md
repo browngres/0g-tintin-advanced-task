@@ -31,7 +31,20 @@
 
 可行的思路之一是将这些实例化 broker 以及相关操作全部放到后端。前端调用 API，只给 broker id。
 
+又尬住了，实例化 broker 需要用到 signer，也就是前端连接的钱包。这个参数就是带私钥的钱包了，绝对不能往后端送。
+
+又问了更高明的 AI，其实 bun bundler 已经自动处理适配了很多导入。唯独这个 `child_process`，它不会弄，认为这个不能设置为空。也不能设置 external，external 只是置之不理。要的是设置为空。接下来的办法，二选一
+
+1. 让 bun 把 `child_process` 导入设置为空。 [Lifecycle hooks](https://bun.sh/docs/bundler/plugins#lifecycle-hooks)
+2. 使用 vite ，我偏不用 webpack。
+
+还是那句话，踩坑越多，学到的东西越多。
+
 ## 代码路径
 
 `index.ts` 建立服务器 --> 用户请求根目录 --> `index.ts` route 到 `index.html` -->
 `frontend.tsx` 套上 rainbow 获得 app --> `app.tsx` return 前端内容
+
+## 运行截图
+
+TODO
