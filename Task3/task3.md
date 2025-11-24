@@ -12,3 +12,4 @@
 
 `index.ts` 建立服务器 --> 用户请求根目录 --> `index.ts` route 到 `index.html` -->
 `frontend.tsx` 套上 rainbow 获得 app --> `app.tsx` return 前端内容
+
