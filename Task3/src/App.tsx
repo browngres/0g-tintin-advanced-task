@@ -3,12 +3,17 @@ import "./index.css";
 import logo from "./logo.svg";
 import reactLogo from "./react.svg";
 import zgLogo from "./0G-Logo.png";
+
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount, useWalletClient } from "wagmi";
+
 import AccountTab from './components/AccountTab';
 import ServiceTab from './components/ServiceTab';
 import ChatTab from './components/ChatTab';
-import { useState } from 'react';
-import { useAccount, useWalletClient } from "wagmi";
+import { useEffect, useState } from 'react';
+
+import { BrowserProvider } from "ethers";
+import { createZGComputeNetworkBroker } from "@0glabs/0g-serving-broker";
 
 export function App() {
   // 新增：三个 tab 的状态
@@ -22,6 +27,24 @@ export function App() {
   const [message, setMessage] = useState("");
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
 
+  // 初始化 Broker
+  useEffect(() => {
+    if (!isConnected || !walletClient || broker) return;
+
+    const initBroker = async () => {
+      try {
+        const provider = new BrowserProvider(walletClient);
+        const signer = await provider.getSigner();
+        const instance = await createZGComputeNetworkBroker(signer);
+        setBroker(instance);
+        console.log("Broker 初始化成功");
+      } catch (err) {
+        console.error("Broker 初始化失败:", err);
+      }
+    };
+
+    initBroker();
+  }, [isConnected, walletClient, broker]);  // 当这三个变动时会执行 useEffect 代码
 
   return (
     <div className="mx-auto p-8 text-center relative z-10 min-w-250">
