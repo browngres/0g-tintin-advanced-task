@@ -11,6 +11,7 @@
 -   运行：`bun dev`
 -   `AccountTab` 添加了 Refund 功能。测试成功
 -   原 demo 中的 `message`消息提示，命名为 `notice`；`messages` 聊天内容，命名为 `chatContents`；`InputMessage`输入消息，命名为`Input`
+-   点击请求 API 按钮，获取价格。自动写入消息到聊天框（不自动发送）
 
 ## 备注
 
@@ -81,7 +82,7 @@ const myPlugin: BunPlugin = {
 -   [demo](https://github.com/Ravenyjh/compute-web-demo/)
 -   [Bundler - Bun](https://bun.com/docs/bundler)
 -   [child_process-browserify](https://www.npmjs.com/package/child_process-browserify)
-- [Buffer Import Error When Building for Client-Side with Bun](https://github.com/oven-sh/bun/issues/8683)
+-   [Buffer Import Error When Building for Client-Side with Bun](https://github.com/oven-sh/bun/issues/8683)
 
 ## 运行截图
 

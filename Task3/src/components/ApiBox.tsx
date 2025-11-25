@@ -1,23 +1,29 @@
 import { useState } from "react"
 interface ApiBoxProps {
+  input: string;
+  setInput: (input: string) => void;
   notice: string;
   setNotice: (notice: string) => void;
 }
 
-export default function ApiBox({ notice, setNotice }: ApiBoxProps) {
-  const apiUrl = 'https://fapi.binance.com/fapi/v2/ticker/price?symbol=BTCUSDT';
+export default function ApiBox({ input, setInput, notice, setNotice }: ApiBoxProps) {
+  const apiUrl = 'https://fapi.binance.com/fapi/v2/ticker/price?symbol=0GUSDT';
 
   const [symbol, setSymbol] = useState("")
   const [price, setPrice] = useState("")
   const [time, setTime] = useState("")
 
   const fetchPrice = async () => {
+    // 向 API 请求价格
     try {
       const res = await fetch(apiUrl)
       const data = await res.json()
       setSymbol(data.symbol || "")
       setPrice(data.price || "")
       setTime(data.time || "")
+
+      // 填写输入框
+      setInput("这是现在的 " + data.symbol + " 价格：" + data.price + " 请给出交易建议")
     } catch (err) {
       setNotice("请求价格失败")
       console.error(err)

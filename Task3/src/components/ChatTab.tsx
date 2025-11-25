@@ -17,13 +17,6 @@ export default function ChatTab({
 }: ChatTabProps) {
 
   const [chatContents, setChatContents] = useState<any[]>([]);
-  // [
-  //   { "role": "user", "content": "hello?" },
-  //   { "role": "assistant", "content": "123" },
-  //   { "role": "user", "content": "hello?" },
-  //   { "role": "assistant", "content": "234" },
-  // ]);
-
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [verifyingMessageId, setVerifyingMessageId] = useState<string | null>(null);
@@ -166,7 +159,7 @@ export default function ChatTab({
 
       <div className="flex flex-col absolute bottom-1 left-2 right-2 px-2">
         {/* API 请求框 */}
-        <ApiBox notice={notice} setNotice={setNotice} />
+        <ApiBox input={input} setInput={setInput} notice={notice} setNotice={setNotice} />
         <div className='flex my-4 shrink-0'>
           {/* 输入框 */}
           <input
