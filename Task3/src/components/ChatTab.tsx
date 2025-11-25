@@ -4,39 +4,45 @@ import { useState, useEffect } from 'react';
 interface ChatTabProps {
   broker: any;
   selectedProvider: any;
-  message: string;
-  setMessage: (message: string) => void;
+  notice: string;
+  setNotice: (notice: string) => void;
 }
 
-export default function ChatTab({ 
-  broker, 
-  selectedProvider, 
-  message, 
-  setMessage 
+export default function ChatTab({
+  broker,
+  selectedProvider,
+  notice,
+  setNotice
 }: ChatTabProps) {
 
-  const [messages, setMessages] = useState<any[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
+  const [chatContents, setChatContents] = useState<any[]>([]);
+  // [
+  //   { "role": "user", "content": "hello?" },
+  //   { "role": "assistant", "content": "123" },
+  //   { "role": "user", "content": "hello?" },
+  //   { "role": "assistant", "content": "234" },
+  // ]);
+
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [verifyingMessageId, setVerifyingMessageId] = useState<string | null>(null);
 
   // 重置消息历史
   useEffect(() => {
-    if (selectedProvider) {
-      setMessages([]);
-    }
+    if (selectedProvider) { setChatContents([]); }
   }, [selectedProvider]);
 
   // 发送消息（基础版本）
   const sendMessage = async () => {
-    if (!broker || !selectedProvider || !inputMessage.trim()) return;
+    if (!broker || !selectedProvider || !input.trim()) return;
 
-    const userMsg = { role: "user", content: inputMessage };
-    setMessages((prev) => [...prev, userMsg]);
-    setInputMessage("");
+    const userMsg = { role: "user", content: input };
+    setChatContents((prev) => [...prev, userMsg]);
+    setInput("");
     setLoading(true);
 
     try {
+      // 获取元数据和请求头
       const metadata = await broker.inference.getServiceMetadata(selectedProvider.address);
       const headers = await broker.inference.getRequestHeaders(
         selectedProvider.address,
@@ -47,11 +53,10 @@ export default function ChatTab({
       try {
         account = await broker.inference.getAccount(selectedProvider.address);
       } catch (error) {
-        await broker.ledger.transferFund(
-          selectedProvider.address,
-          "inference",
-          BigInt(2e18)
-        );
+        console.error("获取子账户信息失败:", error);
+        setNotice("获取子账户信息失败")
+        return
+        // await broker.ledger.transferFund(selectedProvider.address, "inference", BigInt(2e18));
       }
 
       console.log("账户信息:", account);
@@ -61,7 +66,7 @@ export default function ChatTab({
         await broker.ledger.transferFund(
           selectedProvider.address,
           "inference",
-          BigInt(2e18)
+          BigInt(1e18)
         );
       }
 
@@ -69,7 +74,7 @@ export default function ChatTab({
         method: "POST",
         headers: { "Content-Type": "application/json", ...headers },
         body: JSON.stringify({
-          messages: [userMsg],
+          chatContents: [userMsg],
           model: metadata.model,
           stream: false,
         }),
@@ -82,98 +87,75 @@ export default function ChatTab({
         id: result.id,
         verified: false,
       };
-      
-      setMessages((prev) => [...prev, aiMsg]);
+
+      setChatContents((prev) => [...prev, aiMsg]);
 
       // 处理验证和计费
       if (result.id) {
         setVerifyingMessageId(result.id);
-        setMessage("正在验证响应...");
-        
+        setNotice("正在验证响应...");
+
         try {
-          await broker.inference.processResponse(
-            selectedProvider.address,
-            aiMsg.content,
-            result.id
+          await broker.inference.processResponse(selectedProvider.address, aiMsg.content, result.id);
+          setChatContents((prev) =>
+            prev.map(msg => msg.id === result.id ? { ...msg, verified: true } : msg)
           );
-          
-          setMessages((prev) => 
-            prev.map(msg => 
-              msg.id === result.id 
-                ? { ...msg, verified: true }
-                : msg
-            )
-          );
-          setMessage("响应验证成功");
+          setNotice("响应验证成功");
         } catch (verifyErr) {
           console.error("验证失败:", verifyErr);
-          setMessage("响应验证失败");
+          setNotice("响应验证失败");
           // 标记验证失败
-          setMessages((prev) => 
-            prev.map(msg => 
-              msg.id === result.id 
-                ? { ...msg, verified: false, verifyError: true }
-                : msg
-            )
+          setChatContents((prev) =>
+            prev.map(msg => msg.id === result.id ? { ...msg, verified: false, verifyError: true } : msg)
           );
         } finally {
           setVerifyingMessageId(null);
-          setTimeout(() => setMessage(""), 3000);
+          setTimeout(() => setNotice(""), 3000);
         }
       }
     } catch (err) {
-      setMessages((prev) => [...prev, { 
-        role: "assistant", 
+      setChatContents((prev) => [...prev, {
+        role: "assistant",
         content: "错误: " + (err instanceof Error ? err.message : String(err))
       }]);
     }
     setLoading(false);
   };
 
+
   if (!selectedProvider) {
     return (
       <div>
-        <h2>AI 聊天</h2>
+        <h2 className='text-lg font-bold my-2'>AI 聊天</h2>
         <p>请先选择并验证服务</p>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2>AI 聊天</h2>
-      <div style={{ marginBottom: "10px", fontSize: "14px", color: "#666" }}>
-        当前服务: {selectedProvider.name} - {selectedProvider.model}
-      </div>
-      
-      <div
-        style={{
-          height: "300px",
-          overflowY: "auto",
-          border: "1px solid #ddd",
-          padding: "10px",
-          marginBottom: "10px",
-        }}
-      >
-        {messages.length === 0 ? (
-          <div style={{ color: "#666", fontStyle: "italic" }}>
+    <div className="relative min-h-[500px] flex flex-col">
+      <h2 className='text-lg font-bold my-2'>AI 聊天</h2>
+      <p className='font-bold my-2'>当前服务: {selectedProvider.name} - {selectedProvider.model}</p>
+
+      <div className="p-4 flex-1 overflow-y-auto space-y-4 border border-purple-300 rounded-lg">
+        {chatContents.length === 0 ? (
+          <div className='font-bold my-2'>
             开始与 AI 对话...
           </div>
         ) : (
-          messages.map((msg, i) => (
-            <div key={i} style={{ marginBottom: "10px" }}>
+          chatContents.map((msg, i) => (
+            <div key={i} className='my-2'>
               <strong>{msg.role === "user" ? "你" : "AI"}:</strong> {msg.content}
               {msg.role === "assistant" && msg.id && (
-                <span style={{ 
-                  marginLeft: "10px", 
-                  fontSize: "12px",
-                  color: msg.verifyError ? "#dc3545" : 
-                         msg.verified ? "#28a745" : 
-                         verifyingMessageId === msg.id ? "#ffc107" : "#6c757d"
-                }}>
+                <span className='m-2'
+                  style={{
+                    color: msg.verifyError ? "#dc3545" :
+                      msg.verified ? "#28a745" :
+                        verifyingMessageId === msg.id ? "#ffc107" : "#6c757d"
+                  }}>
                   {msg.verifyError ? "❌ 验证失败" :
-                   msg.verified ? "✓ 已验证" : 
-                   verifyingMessageId === msg.id ? "⏳ 验证中..." : "⚠️ 未验证"}
+                    msg.verified ? "✓ 已验证" :
+                      verifyingMessageId === msg.id ? "⏳ 验证中..." : "⚠️ 未验证"}
                 </span>
               )}
             </div>
@@ -181,23 +163,24 @@ export default function ChatTab({
         )}
       </div>
 
-      <div style={{ display: "flex" }}>
+      <div className="flex absolute bottom-1 left-2 right-2 my-4 shrink-0">
         <input
           type="text"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !loading && sendMessage()}
           placeholder="输入消息..."
-          style={{ flex: 1, padding: "5px", marginRight: "10px" }}
+          className="flex-1 p-3 mx-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
         <button
           onClick={sendMessage}
-          disabled={loading || !inputMessage.trim()}
-          style={{ padding: "5px 15px" }}
+          disabled={loading || !input.trim()}
+          className="px-4 py-2 mx-2 bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 transition-colors"
         >
           {loading ? "发送中..." : "发送"}
         </button>
       </div>
+
     </div>
   );
 }

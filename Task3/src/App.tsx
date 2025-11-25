@@ -130,13 +130,21 @@ export function App() {
 
         {/* 右侧内容区域 */}
         <div className="flex-1 bg-white/20 backdrop-blur-sm p-6 rounded shadow min-h-[550px]">
-          {activeTab === 'account' && <AccountTab broker={broker} notice={notice} setNotice={setNotice} />}
+          {activeTab === 'account' && <AccountTab
+            broker={broker}
+            notice={notice}
+            setNotice={setNotice} />}
           {activeTab === 'service' && <ServiceTab
-            broker={broker} selectedProvider={selectedProvider}
+            broker={broker}
+            selectedProvider={selectedProvider}
             setSelectedProvider={setSelectedProvider}
             notice={notice}
             setNotice={setNotice} />}
-          {activeTab === 'chat' && <ChatTab />}
+          {activeTab === 'chat' && <ChatTab
+            broker={broker}
+            selectedProvider={selectedProvider}
+            notice={notice}
+            setNotice={setNotice} />}
         </div>
       </div>
     </div>
