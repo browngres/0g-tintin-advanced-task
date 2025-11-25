@@ -9,6 +9,8 @@
 
 -   安装依赖（可以用 yarn/npm 等）：`bun install`
 -   运行：`bun dev`
+-   `AccountTab` 添加了 Refund 功能。测试成功
+-   原 demo 中的 `message`消息提示，命名为 `notice`
 
 ## 备注
 
@@ -18,7 +20,7 @@
     `0g-serving-broker` 看起来是用 go 写的 cli + api
 -   `@0glabs/0g-serving-broker` npm 包里面竟然塞了一个 40MB 的 `0g-strage-client` binary
 
-## 最大难点（实际上是自己找麻烦）
+## 最大难点（实际上是自己给自己加难度）
 
 **踩坑越多，学到的东西越多。毕竟没有系统学过前端**
 研究了很长时间，各种问 AI（一开始还不明白为什么运行不了），研究了很久曲线救国的方法。
@@ -40,7 +42,7 @@
 
 还是那句话，踩坑越多，学到的东西越多。
 
-方法1，甚至问了 bundler 文档里面的AI。。。尝试 onResolve。
+方法 1，甚至问了 bundler 文档里面的 AI。。。尝试 onResolve。
 已经找到了，但是修改后还是报 `child_process` 无法导入。
 这里研究了 3 个小时即将放弃了，柳暗花明看到了一个东西 "child_process-browserify"，其实是个空包。
 马上想到不是替换成空白导入，而是替换成这个空包。提示必须使用绝对路径。这个好说。
@@ -69,15 +71,16 @@ const myPlugin: BunPlugin = {
 };
 ```
 
-
 ## 代码路径
 
 `index.ts` 建立服务器 --> 用户请求根目录 --> `index.ts` route 到 `index.html` -->
 `frontend.tsx` 套上 rainbow 获得 app --> `app.tsx` return 前端内容
 
 ## 参考链接
-- [demo](https://github.com/Ravenyjh/compute-web-demo/)
-- [Bundler - Bun](https://bun.com/docs/bundler)
+
+-   [demo](https://github.com/Ravenyjh/compute-web-demo/)
+-   [Bundler - Bun](https://bun.com/docs/bundler)
+-   [child_process-browserify](https://www.npmjs.com/package/child_process-browserify)
 
 ## 运行截图
 

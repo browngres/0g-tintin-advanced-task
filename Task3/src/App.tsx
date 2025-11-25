@@ -24,7 +24,7 @@ export function App() {
 
   // 基础状态
   const [broker, setBroker] = useState<any>(null);
-  const [message, setMessage] = useState("");
+  const [notice, setNotice] = useState("Notice here. Good luck!"); // 消息提示
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
 
   // 初始化 Broker
@@ -37,9 +37,11 @@ export function App() {
         const signer = await provider.getSigner();
         // const instance = 666
         const instance = await createZGComputeNetworkBroker(signer);
+        console.log("typeof (Broker):", typeof (instance));
         setBroker(instance);
         console.log("Broker 初始化成功");
       } catch (err) {
+        setNotice("Broker 初始化失败")
         console.error("Broker 初始化失败:", err);
       }
     };
@@ -75,6 +77,20 @@ export function App() {
             <p className="text-lg text-yellow-800">请先连接钱包</p>
           </div>
         )}
+      </div>
+
+      {/* 消息提示 */}
+      <div className="flex justify-center items-center">
+      {notice && (
+        <div
+          className={`p-3 rounded-md min-w-150 border ${notice.includes("失败")
+              ? "bg-red-100 border-red-300 text-red-800"
+              : "bg-green-100 border-green-300 text-green-800"
+            }`}
+        >
+          {notice}
+        </div>
+      )}
       </div>
 
       {/* Tabs: 左侧纵向 tab 列，右侧内容区域 */}
@@ -114,7 +130,7 @@ export function App() {
 
         {/* 右侧内容区域 */}
         <div className="flex-1 bg-white/60 backdrop-blur-sm p-6 rounded shadow min-h-[550px]">
-          {activeTab === 'account' && <AccountTab />}
+          {activeTab === 'account' && <AccountTab broker={broker} notice={notice} setNotice={setNotice}/>}
           {activeTab === 'service' && <ServiceTab />}
           {activeTab === 'chat' && <ChatTab />}
         </div>
