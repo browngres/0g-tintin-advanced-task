@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 
 import { BrowserProvider } from "ethers";
 import { createZGComputeNetworkBroker } from "@0glabs/0g-serving-broker";
+// import MockChatTab from "./components/MockChatTab";
 
 export function App() {
   // 新增：三个 tab 的状态
@@ -141,6 +142,7 @@ export function App() {
             notice={notice}
             setNotice={setNotice} />}
           {activeTab === 'chat' && <ChatTab
+          {/* {activeTab === 'chat' && <MockChatTab */}
             broker={broker}
             selectedProvider={selectedProvider}
             notice={notice}
