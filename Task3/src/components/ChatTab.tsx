@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import ApiBox from './ApiBox';
 
 interface ChatTabProps {
   broker: any;
@@ -163,24 +164,29 @@ export default function ChatTab({
         )}
       </div>
 
-      <div className="flex absolute bottom-1 left-2 right-2 my-4 shrink-0">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && !loading && sendMessage()}
-          placeholder="输入消息..."
-          className="flex-1 p-3 mx-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-        <button
-          onClick={sendMessage}
-          disabled={loading || !input.trim()}
-          className="px-4 py-2 mx-2 bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 transition-colors"
-        >
-          {loading ? "发送中..." : "发送"}
-        </button>
+      <div className="flex flex-col absolute bottom-1 left-2 right-2 px-2">
+        {/* API 请求框 */}
+        <ApiBox notice={notice} setNotice={setNotice} />
+        <div className='flex my-4 shrink-0'>
+          {/* 输入框 */}
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !loading && sendMessage()}
+            placeholder="输入消息..."
+            className="flex-1 px-2 mr-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          {/* 发送按钮 */}
+          <button
+            onClick={sendMessage}
+            disabled={loading || !input.trim()}
+            className="px-4 py-2 mx-2 min-w-[90px] bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 transition-colors"
+          >
+            {loading ? "发送中..." : "发送"}
+          </button>
+        </div>
       </div>
-
     </div>
   );
 }
