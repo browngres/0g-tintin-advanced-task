@@ -1,7 +1,10 @@
 import { serve } from "bun";
 import index from "./index.html";
 
-// TODO 存 broker 实例
+import { Buffer } from 'buffer';
+// 将它们附加到全局对象 'globalThis' 上
+// globalThis 是一个在所有 JavaScript 环境都可用的全局对象
+globalThis.Buffer = Buffer;
 
 const server = serve({
   routes: {

@@ -12,6 +12,7 @@
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.9",
     "@tanstack/react-query": "^5.90.10",
+    "buffer": "^6.0.3",
     "bun-plugin-tailwind": "^0.1.2",
     "ethers": "^6",
     "react": "^19",

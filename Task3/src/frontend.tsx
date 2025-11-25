@@ -28,6 +28,11 @@ export const config = getDefaultConfig({
 
 const queryClient = new QueryClient()
 
+import { Buffer } from "buffer";
+if (!window.Buffer) {
+    window.Buffer = Buffer
+}
+
 const app = (
   <React.StrictMode>
     <WagmiProvider config={config}>
