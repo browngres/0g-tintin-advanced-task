@@ -3,6 +3,7 @@ import plugin from "bun-plugin-tailwind";
 import { existsSync } from "fs";
 import { rm } from "fs/promises";
 import path from "path";
+import type { BunPlugin } from "bun";
 
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
   console.log(`
@@ -122,10 +123,36 @@ const entrypoints = [...new Bun.Glob("**.html").scanSync("src")]
   .filter(dir => !dir.includes("node_modules"));
 console.log(`📄 Found ${entrypoints.length} HTML ${entrypoints.length === 1 ? "file" : "files"} to process\n`);
 
+// cliConfig.external = ["@0glabs/0g-serving-broker"] // not work
+// cliConfig.external = ["child_process"] // not work
+
+// cliConfig.splitting = true
+cliConfig.footer = '// built with love of bun'
+
+// resolve fallback
+const myPlugin: BunPlugin = {
+  name: "onResolve fallback child_process",
+  setup(build) {
+    build.onResolve({ filter: /.*/, namespace: "file" }, args => {
+      if (args.path.includes("child_process")) {
+        console.log("666,found child_process"); // 一共四处
+        console.log(args.path);
+
+        return{
+          // path: "",   // 失败
+          // path: args.path.replace("child_process", "child_process-browserify"), // 要求绝对路径
+          path: path.resolve("./child_process-browserify/index.js"),
+        }
+      }
+    });
+  }
+};
+
+
 const result = await Bun.build({
   entrypoints,
   outdir,
-  plugins: [plugin],
+  plugins: [plugin, myPlugin],
   minify: true,
   target: "browser",
   sourcemap: "linked",

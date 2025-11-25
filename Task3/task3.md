@@ -40,10 +40,44 @@
 
 还是那句话，踩坑越多，学到的东西越多。
 
+方法1，甚至问了 bundler 文档里面的AI。。。尝试 onResolve。
+已经找到了，但是修改后还是报 `child_process` 无法导入。
+这里研究了 3 个小时即将放弃了，柳暗花明看到了一个东西 "child_process-browserify"，其实是个空包。
+马上想到不是替换成空白导入，而是替换成这个空包。提示必须使用绝对路径。这个好说。
+成功了。困扰了将近 3 天的问题终于迎刃而解！！！
+
+这段代码就是解决方案。
+
+```ts
+// resolve fallback of child_process
+const myPlugin: BunPlugin = {
+  name: "onResolve fallback child_process",
+  setup(build) {
+    build.onResolve({ filter: /.*/, namespace: "file" }, args => {
+      if (args.path.includes("child_process")) {
+        console.log("666,found child_process"); // 一共四处
+        // console.log(args.path);
+
+        return{
+          // path: "",   // 失败
+          // path: args.path.replace("child_process", "child_process-browserify"),  // 要求绝对路径
+          path: path.resolve("./child_process-browserify/index.js"),
+        }
+      }
+    });
+  }
+};
+```
+
+
 ## 代码路径
 
 `index.ts` 建立服务器 --> 用户请求根目录 --> `index.ts` route 到 `index.html` -->
 `frontend.tsx` 套上 rainbow 获得 app --> `app.tsx` return 前端内容
+
+## 参考链接
+- [demo](https://github.com/Ravenyjh/compute-web-demo/)
+- [Bundler - Bun](https://bun.com/docs/bundler)
 
 ## 运行截图
 
