@@ -5,16 +5,16 @@ interface ServiceTabProps {
   broker: any;
   selectedProvider: any;
   setSelectedProvider: (provider: any) => void;
-  message: string;
-  setMessage: (message: string) => void;
+  notice: string;
+  setNotice: (notice: string) => void;
 }
 
-export default function ServiceTab({ 
-  broker, 
-  selectedProvider, 
-  setSelectedProvider, 
-  message, 
-  setMessage 
+export default function ServiceTab({
+  broker,
+  selectedProvider,
+  setSelectedProvider,
+  notice,
+  setNotice
 }: ServiceTabProps) {
 
   const [providers, setProviders] = useState<any[]>([]);
@@ -26,7 +26,14 @@ export default function ServiceTab({
 
     setLoading(true);
     try {
-      const services = await broker.inference.listService();
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("获取服务失败：超时")), 5000)
+      );
+
+      const services = await Promise.race([
+        broker.inference.listService(),
+        timeoutPromise
+      ]);
       const list = services.map((s: any) => ({
         address: s.provider || "",
         name: s.name || s.model || "Unknown",
@@ -36,16 +43,19 @@ export default function ServiceTab({
       if (list.length > 0 && !selectedProvider) {
         setSelectedProvider(list[0]);
       }
-    } catch (err) {
-      console.error("获取服务失败:", err);
+    } catch (err: any) {
+      setProviders([]);
+      if (err.message.includes("超时")) {
+        setNotice("获取服务失败：超时");
+      } else {
+        console.error("获取服务失败:", err);
+      }
     }
     setLoading(false);
   };
 
   // 自动获取服务列表
-  useEffect(() => {
-    fetchProviders();
-  }, [broker]);
+  useEffect(() => { fetchProviders(); }, [broker]);
 
   // 验证服务
   const verifyService = async () => {
@@ -54,18 +64,21 @@ export default function ServiceTab({
     setLoading(true);
     try {
       await broker.inference.acknowledgeProviderSigner(selectedProvider.address);
-      setMessage("服务验证成功");
+      setNotice("服务验证成功");
     } catch (err) {
       console.error("服务验证失败:", err);
-      setMessage("服务验证失败");
+      setNotice("服务验证失败");
     }
     setLoading(false);
   };
 
   return (
+
     <div>
-      <h2>服务列表</h2>
-      {providers.length > 0 ? (
+      <h2 className='text-lg font-bold my-2'>服务列表</h2>
+      {loading ? (
+        <p>加载中...</p>
+      ) : (
         <div>
           <select
             value={selectedProvider?.address || ""}
@@ -73,11 +86,7 @@ export default function ServiceTab({
               const p = providers.find((p) => p.address === e.target.value);
               setSelectedProvider(p);
             }}
-            style={{
-              padding: "5px",
-              width: "100%",
-              marginBottom: "10px",
-            }}
+            className="w-full px-4 py-2 border text-purple-300 border-gray-300 rounded-lg shadow-sm transition-all"
           >
             {providers.map((p) => (
               <option key={p.address} value={p.address}>
@@ -88,19 +97,17 @@ export default function ServiceTab({
 
           {selectedProvider && (
             <div>
-              <p>地址: {selectedProvider.address}</p>
+              <p className="my-2">地址: {selectedProvider.address}</p>
               <button
                 onClick={verifyService}
                 disabled={loading}
-                style={{ padding: "5px 15px", marginTop: "10px" }}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all"
               >
-                {loading ? "验证中..." : "验证服务"}
+              {loading ? "验证中..." : "验证服务"}
               </button>
             </div>
           )}
         </div>
-      ) : (
-        <p>加载中...</p>
       )}
     </div>
   );

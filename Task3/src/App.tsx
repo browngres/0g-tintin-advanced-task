@@ -37,7 +37,7 @@ export function App() {
         const signer = await provider.getSigner();
         // const instance = 666
         const instance = await createZGComputeNetworkBroker(signer);
-        console.log("typeof (Broker):", typeof (instance));
+        // console.log("typeof (Broker):", typeof (instance));
         setBroker(instance);
         console.log("Broker 初始化成功");
       } catch (err) {
@@ -81,16 +81,16 @@ export function App() {
 
       {/* 消息提示 */}
       <div className="flex justify-center items-center">
-      {notice && (
-        <div
-          className={`p-3 rounded-md min-w-150 border ${notice.includes("失败")
+        {notice && (
+          <div
+            className={`p-3 rounded-md min-w-150 border ${notice.includes("失败")
               ? "bg-red-100 border-red-300 text-red-800"
               : "bg-green-100 border-green-300 text-green-800"
-            }`}
-        >
-          {notice}
-        </div>
-      )}
+              }`}
+          >
+            {notice}
+          </div>
+        )}
       </div>
 
       {/* Tabs: 左侧纵向 tab 列，右侧内容区域 */}
@@ -129,9 +129,13 @@ export function App() {
         </div>
 
         {/* 右侧内容区域 */}
-        <div className="flex-1 bg-white/60 backdrop-blur-sm p-6 rounded shadow min-h-[550px]">
-          {activeTab === 'account' && <AccountTab broker={broker} notice={notice} setNotice={setNotice}/>}
-          {activeTab === 'service' && <ServiceTab />}
+        <div className="flex-1 bg-white/20 backdrop-blur-sm p-6 rounded shadow min-h-[550px]">
+          {activeTab === 'account' && <AccountTab broker={broker} notice={notice} setNotice={setNotice} />}
+          {activeTab === 'service' && <ServiceTab
+            broker={broker} selectedProvider={selectedProvider}
+            setSelectedProvider={setSelectedProvider}
+            notice={notice}
+            setNotice={setNotice} />}
           {activeTab === 'chat' && <ChatTab />}
         </div>
       </div>
