@@ -20,6 +20,12 @@
 -   `@0glabs/0g-serving-broker`的代码仓库不叫`0g-serving-broker`，而是 `0g-serving-user-broker`。
     `0g-serving-broker` 看起来是用 go 写的 cli + api
 -   `@0glabs/0g-serving-broker` npm 包里面竟然塞了一个 40MB 的 `0g-strage-client` binary
+-   涉及资金的四个函数
+
+> deposit --> 存进 ledger
+> refund --> 从 ledger 取回
+> transfer --> 字面意思是转账，其实是“分配”，让 ledger 规定一部分资金用于某个 provider 推理服务，并没有直接打给 provider。可以理解为授权
+> retrieve --> 取消所有的“分配”
 
 ## 最大难点（实际上是自己给自己加难度）
 
@@ -43,10 +49,10 @@
 
 还是那句话，踩坑越多，学到的东西越多。
 
-方法 1，甚至问了 bundler 文档里面的 AI。。。尝试 onResolve。
-已经找到了，但是修改后还是报 `child_process` 无法导入。
+方法 1，甚至问了 bundler 文档里面的 AI。。。尝试 onResolve。已经找到了，但是修改后还是报 `child_process` 无法导入。
 这里研究了 3 个小时即将放弃了，柳暗花明看到了一个东西 "child_process-browserify"，其实是个空包。
 马上想到不是替换成空白导入，而是替换成这个空包。提示必须使用绝对路径。这个好说。
+
 成功了。困扰了将近 3 天的问题终于迎刃而解！！！
 
 这段代码就是解决方案。
@@ -54,22 +60,22 @@
 ```ts
 // resolve fallback of child_process
 const myPlugin: BunPlugin = {
-  name: "onResolve fallback child_process",
-  setup(build) {
-    build.onResolve({ filter: /.*/, namespace: "file" }, args => {
-      if (args.path.includes("child_process")) {
-        console.log("666,found child_process"); // 一共四处
-        // console.log(args.path);
+    name: "onResolve fallback child_process",
+    setup(build) {
+        build.onResolve({ filter: /.*/, namespace: "file" }, (args) => {
+            if (args.path.includes("child_process")) {
+                console.log("666,found child_process") // 一共四处
+                // console.log(args.path);
 
-        return{
-          // path: "",   // 失败
-          // path: args.path.replace("child_process", "child_process-browserify"),  // 要求绝对路径
-          path: path.resolve("./child_process-browserify/index.js"),
-        }
-      }
-    });
-  }
-};
+                return {
+                    // path: "",   // 失败
+                    // path: args.path.replace("child_process", "child_process-browserify"),  // 要求绝对路径
+                    path: path.resolve("./child_process-browserify/index.js"),
+                }
+            }
+        })
+    },
+}
 ```
 
 ## 代码路径
@@ -87,3 +93,7 @@ const myPlugin: BunPlugin = {
 ## 运行截图
 
 TODO
+
+## 问题
+
+refund 和 retrieveFund 区别？
