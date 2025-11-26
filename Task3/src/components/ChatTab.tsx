@@ -68,7 +68,7 @@ export default function ChatTab({
         method: "POST",
         headers: { "Content-Type": "application/json", ...headers },
         body: JSON.stringify({
-          chatContents: [userMsg],
+          messages: [userMsg],
           model: metadata.model,
           stream: false,
         }),
