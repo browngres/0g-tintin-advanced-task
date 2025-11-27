@@ -78,6 +78,28 @@ const myPlugin: BunPlugin = {
 }
 ```
 
+## 运行截图
+
+### 主界面
+
+[![pZEueCF.jpg](https://s41.ax1x.com/2025/11/27/pZEueCF.jpg)](https://imgchr.com/i/pZEueCF)
+
+### 充值
+
+[![pZEuMuR.jpg](https://s41.ax1x.com/2025/11/27/pZEuMuR.jpg)](https://imgchr.com/i/pZEuMuR)
+
+### 退还
+
+[![pZEuQD1.jpg](https://s41.ax1x.com/2025/11/27/pZEuQD1.jpg)](https://imgchr.com/i/pZEuQD1)
+
+### 服务验证
+
+[![pZEulHx.jpg](https://s41.ax1x.com/2025/11/27/pZEulHx.jpg)](https://imgchr.com/i/pZEulHx)
+
+### 获取价格信息，聊天获得响应并验证
+
+[![pZEuUvd.jpg](https://s41.ax1x.com/2025/11/27/pZEuUvd.jpg)](https://imgchr.com/i/pZEuUvd)
+
 ## 代码路径
 
 `index.ts` 建立服务器 --> 用户请求根目录 --> `index.ts` route 到 `index.html` -->
@@ -89,11 +111,3 @@ const myPlugin: BunPlugin = {
 -   [Bundler - Bun](https://bun.com/docs/bundler)
 -   [child_process-browserify](https://www.npmjs.com/package/child_process-browserify)
 -   [Buffer Import Error When Building for Client-Side with Bun](https://github.com/oven-sh/bun/issues/8683)
-
-## 运行截图
-
-TODO
-
-## 问题
-
-refund 和 retrieveFund 区别？
