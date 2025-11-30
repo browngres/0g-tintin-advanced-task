@@ -46,12 +46,12 @@ const proxyTEEVerifierModule = buildModule("ProxyTEEVerifierModule", (m) => {
     // 部署 proxy
     const proxy = m.contract("BeaconProxy", [beacon, initializeData], { from: deployer })
 
-    return { tee, beacon, proxy }
+    return { beacon, proxy }
 })
 
 const TEEVerifierModule = buildModule("TEEVerifierModule", (m) => {
-    const { tee, beacon, proxy } = m.useModule(proxyTEEVerifierModule)
-    // 其实有点多余
+    const { beacon, proxy } = m.useModule(proxyTEEVerifierModule)
+    const tee = m.contractAt("TEEVerifier", proxy)
     return { tee, beacon, proxy }
 })
 
