@@ -8,15 +8,23 @@
 提交 chain scan 上合约地址链接，以及 mint 的 inft 的链接
 https://chainscan-galileo.0g.ai/
 
+## 加难度
+
+使用 hardhat 3，以及新特性 ignition，重新编写部署相关的代码
+
+## 使用
+
+设置环境变量，代码中没有给出默认值，必须从 `.env` 文件读取。将 `.env.example` 复制一份为 `.env`，并填写相关内容。
+
 ## 参考链接
 
-- [0g-agent-nft (backup branch)](https://github.com/0gfoundation/0g-agent-nft/blob/backup)
-- [ERC-7857](https://eips.ethereum.org/EIPS/eip-7857)
-- [ERC-7857: 具有私有元数据的 AI 代理 NFT](https://learnblockchain.cn/docs/eips/EIPS/eip-7857/)
+-   [0g-agent-nft (backup branch)](https://github.com/0gfoundation/0g-agent-nft/blob/backup)
+-   [ERC-7857](https://eips.ethereum.org/EIPS/eip-7857)
+-   [ERC-7857: 具有私有元数据的 AI 代理 NFT](https://learnblockchain.cn/docs/eips/EIPS/eip-7857/)
 
 ### 可升级的合约
 
-- [Proxy](https://docs.openzeppelin.com/contracts/5.x/api/proxy)
-- [Using with Upgrades](https://docs.openzeppelin.com/contracts/5.x/upgradeable)
-- [Writing Upgradeable Contracts](https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable)
-- [Upgrades Plugins Frequently Asked Questions](https://docs.openzeppelin.com/upgrades-plugins/faq)
+-   [Proxy](https://docs.openzeppelin.com/contracts/5.x/api/proxy)
+-   [Using with Upgrades](https://docs.openzeppelin.com/contracts/5.x/upgradeable)
+-   [Writing Upgradeable Contracts](https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable)
+-   [Upgrades Plugins Frequently Asked Questions](https://docs.openzeppelin.com/upgrades-plugins/faq)
