@@ -1,5 +1,5 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules"
-import { network } from "hardhat"
+
 interface TrustedMeasurementsStruct {
     mrtd: string
     rtmr0: string
@@ -7,9 +7,6 @@ interface TrustedMeasurementsStruct {
     rtmr2: string
     rtmr3: string
 }
-
-const { ethers } = await network.connect()
-const TEEVerifierFactory = await ethers.getContractFactory("TEEVerifier")
 
 const proxyTEEVerifierModule = buildModule("ProxyTEEVerifierModule", (m) => {
     const deployer = m.getAccount(0)
@@ -35,9 +32,15 @@ const proxyTEEVerifierModule = buildModule("ProxyTEEVerifierModule", (m) => {
     console.log("  RTMR2:", trustedMeasurements.rtmr2)
     console.log("  RTMR3:", trustedMeasurements.rtmr3)
 
-    const initializeData = TEEVerifierFactory.interface.encodeFunctionData("initialize", [
+    const initializeData = m.encodeFunctionCall(tee, "initialize", [
         tdxQuote,
-        trustedMeasurements,
+        [
+            trustedMeasurements.mrtd,
+            trustedMeasurements.rtmr0,
+            trustedMeasurements.rtmr1,
+            trustedMeasurements.rtmr2,
+            trustedMeasurements.rtmr3,
+        ],
     ])
 
     // 部署 proxy
@@ -48,6 +51,7 @@ const proxyTEEVerifierModule = buildModule("ProxyTEEVerifierModule", (m) => {
 
 const TEEVerifierModule = buildModule("TEEVerifierModule", (m) => {
     const { tee, beacon, proxy } = m.useModule(proxyTEEVerifierModule)
+    // 其实有点多余
     return { tee, beacon, proxy }
 })
 
