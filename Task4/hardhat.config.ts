@@ -16,6 +16,7 @@ export default defineConfig({
       default: {
         version: "0.8.28",
         settings: {
+          evmVersion: "london",
           optimizer: {
             enabled: true,
             runs: 88,
@@ -25,6 +26,7 @@ export default defineConfig({
       production: {
         version: "0.8.28",
         settings: {
+          evmVersion: "london",
           optimizer: {
             enabled: true,
             runs: 88,
