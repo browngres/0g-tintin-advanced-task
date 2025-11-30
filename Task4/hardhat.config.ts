@@ -4,7 +4,7 @@ import { configVariable, defineConfig, task } from "hardhat/config"
 import dotenv from "dotenv"
 dotenv.config()
 
-const { GANACHE_RPC, GANACHE_RPC_TEMP } = process.env
+const { GANACHE_RPC_MAIN, GANACHE_RPC_TEST } = process.env
 
 const printBlockNumber = task("block-number", "Print the accounts")
   .setAction(() => import("./tasks/block-number.ts"))
@@ -14,10 +14,16 @@ export default defineConfig({
   solidity: {
     profiles: {
       default: {
-        version: "0.8.8",
+        version: "0.8.28",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 88,
+          },
+        },
       },
       production: {
-        version: "0.8.8",
+        version: "0.8.28",
         settings: {
           optimizer: {
             enabled: true,
@@ -26,6 +32,10 @@ export default defineConfig({
         },
       },
     },
+    npmFilesToBuild: [
+      "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol",
+      "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol",
+    ],
   },
 
   networks: {
@@ -33,15 +43,15 @@ export default defineConfig({
       type: "edr-simulated",
       chainType: "l1",
     },
-    ganache: {
+    ganache_main: {
       type: "http",
       chainType: "l1",
-      url: GANACHE_RPC!,
+      url: GANACHE_RPC_MAIN!,
     },
-    ganache_temp: {
+    ganache_test: {
       type: "http",
       chainType: "l1",
-      url: GANACHE_RPC_TEMP!,
+      url: GANACHE_RPC_TEST!,
     },
     sepolia: {
       type: "http",

@@ -12,6 +12,12 @@ https://chainscan-galileo.0g.ai/
 
 使用 hardhat 3，以及新特性 ignition，重新编写部署相关的代码
 
+### beacon 代理方式部署
+
+1. Deploy implementation
+2. Deploy beacon
+3. Deploy proxy with initialization data
+
 ## 使用
 
 设置环境变量，代码中没有给出默认值，必须从 `.env` 文件读取。将 `.env.example` 复制一份为 `.env`，并填写相关内容。

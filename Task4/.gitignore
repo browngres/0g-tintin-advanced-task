@@ -30,3 +30,6 @@
 .eslintcache
 .cache
 *.tsbuildinfo
+
+# Hardhat ignition deployments
+ignition/deployments
