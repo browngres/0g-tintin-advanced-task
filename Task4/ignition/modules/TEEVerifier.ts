@@ -46,11 +46,14 @@ const proxyTEEVerifierModule = buildModule("ProxyTEEVerifierModule", (m) => {
     // 部署 proxy
     const proxy = m.contract("BeaconProxy", [beacon, initializeData], { from: deployer })
 
+    // 实现的合约就不返回了，beacon 知道实现地址
     return { beacon, proxy }
 })
 
 const TEEVerifierModule = buildModule("TEEVerifierModule", (m) => {
     const { beacon, proxy } = m.useModule(proxyTEEVerifierModule)
+
+    // 使用代理来返回 nft，否则代码中使用代理不知道真实合约的 ABI
     const tee = m.contractAt("TEEVerifier", proxy)
     return { tee, beacon, proxy }
 })
