@@ -44,6 +44,7 @@ export default defineConfig({
     hardhat: {
       type: "edr-simulated",
       chainType: "l1",
+      // saveDeployments: true,  // hardhat 3 没有这个选项
     },
     ganache_main: {
       type: "http",
