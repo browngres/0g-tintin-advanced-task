@@ -1,8 +1,5 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules"
 import TEEVerifierModule from "./TEEVerifier.ts"
-import { network } from "hardhat";
-
-const connection = await network.connect();
 
 const proxyVerifierModule = buildModule("ProxyVerifierModule", (m) => {
     // 部署实现和 beacon
@@ -56,7 +53,7 @@ const proxyVerifierModule = buildModule("ProxyVerifierModule", (m) => {
 
 const verifierModule = buildModule("VerifierModule", (m) => {
     const { beacon, proxy } = m.useModule(proxyVerifierModule)
-    const verifier = m.contractAt("AgentNFT", proxy)
+    const verifier = m.contractAt("Verifier", proxy)
     return { verifier, beacon, proxy }
 })
 
