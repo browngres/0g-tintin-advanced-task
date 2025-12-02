@@ -5,6 +5,7 @@ import dotenv from "dotenv"
 dotenv.config()
 
 const { GANACHE_RPC_MAIN, GANACHE_RPC_TEST } = process.env
+const { ZG_TESTNET_RPC_URL, ZG_TESTNET_PRIVATE_KEY, ZG_TESTNET_CHAIN_ID } = process.env
 
 const printBlockNumber = task("block-number", "Print the accounts")
   .setAction(() => import("./tasks/block-number.ts"))
@@ -61,6 +62,13 @@ export default defineConfig({
       chainType: "l1",
       url: configVariable("SEPOLIA_RPC_URL"),
       accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
+    },
+    zgTestnet: {
+      type: "http",
+      chainType: "l1",
+      url: ZG_TESTNET_RPC_URL || "",
+      accounts: [ZG_TESTNET_PRIVATE_KEY || ""],
+      chainId: Number(ZG_TESTNET_CHAIN_ID) || 16602,
     },
   },
 

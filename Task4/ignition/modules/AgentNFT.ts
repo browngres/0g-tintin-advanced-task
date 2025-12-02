@@ -16,8 +16,8 @@ const proxyAgentNFTModule = buildModule("ProxyAgentNFTModule", (m) => {
 
     // 准备参数
     const { NFT_NAME, NFT_SYMBOL } = process.env
-    const { ZG_RPC_URL, ZG_INDEXER_URL } = process.env
-    const storageInfo = JSON.stringify({ ZG_RPC_URL, ZG_INDEXER_URL })
+    const { ZG_TESTNET_RPC_URL, ZG_TESTNET_INDEXER_URL } = process.env
+    const storageInfo = JSON.stringify({ ZG_TESTNET_RPC_URL, ZG_TESTNET_INDEXER_URL })
     // TODO
     const verifyAddress = "0x111"
 
@@ -43,6 +43,7 @@ const agentNFTModule = buildModule("AgentNFTModule", (m) => {
     */
     const nft = m.contractAt("AgentNFT", proxy)
     return { nft, beacon, proxy }
+    // nft 和 proxy 其实是一样的。 nft 并不是指的实现
 })
 
 export default agentNFTModule
