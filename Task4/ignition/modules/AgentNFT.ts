@@ -1,4 +1,5 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules"
+import verifierModule from "./Verifier.ts"
 
 // beacon 代理方式部署
 // 1. Deploy implementation
@@ -11,6 +12,9 @@ const proxyAgentNFTModule = buildModule("ProxyAgentNFTModule", (m) => {
     const deployer = m.getAccount(0)
     console.log("🚀 Deploying AgentNFT with account:", deployer.accountIndex)
 
+    // 需要依赖 verifier 合约
+    const { verifier } = m.useModule(verifierModule)
+
     const nft = m.contract("AgentNFT", [], { from: deployer })
     const beacon = m.contract("UpgradeableBeacon", [nft, deployer])
 
@@ -18,8 +22,7 @@ const proxyAgentNFTModule = buildModule("ProxyAgentNFTModule", (m) => {
     const { NFT_NAME, NFT_SYMBOL } = process.env
     const { ZG_TESTNET_RPC_URL, ZG_TESTNET_INDEXER_URL } = process.env
     const storageInfo = JSON.stringify({ ZG_TESTNET_RPC_URL, ZG_TESTNET_INDEXER_URL })
-    // TODO
-    const verifyAddress = "0x111"
+    const verifyAddress = verifier.address
 
     const initializeData = m.encodeFunctionCall(nft, "initialize", [
         NFT_NAME!,
