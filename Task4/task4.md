@@ -51,6 +51,18 @@ bunx hardhat ignition deploy ./ignition/modules/AgentNFT.ts --network ganache_te
 
 备注：也可以直接执行最后一个，因为 Hardhat 3 会检测到依赖的 Ignition Module 不存在，就会提前部署依赖合约。
 
+## mint 操作
+
+-   需要修改里面的 CA 为 Agent NFT 的代理地址
+-   按需修改使用的网络
+-   按需编辑脚本里面 mock 的内容
+
+`bunx hardhat run scripts/mint.ts --network ganache_test`
+
+## 验证合约
+
+ZG_TESTNET_ETHERSCAN_API_URL = "https://chainscan-galileo.0g.ai/open/api"
+
 ## 参考链接
 
 -   [0g-agent-nft (backup branch)](https://github.com/0gfoundation/0g-agent-nft/blob/backup)
