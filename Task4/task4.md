@@ -52,8 +52,20 @@ bunx hardhat ignition deploy ./ignition/modules/AgentNFT.ts --network ganache_te
 
 ZG_TESTNET_ETHERSCAN_API_URL = "https://chainscan-galileo.0g.ai/open/api"
 
-`AgentNFT-build-info-ganache_main.7z` 备份了 用 0.8.28 编译得到的 Standard Input。可以用于验证合约
+`AgentNFT-build-info-ganache_main.7z` 备份了 用 0.8.28 编译得到的 Standard Input。
+可以用于在 blockscout 验证合约。
+
 （AgentNFT + Verifier + TEEVerifier + Beacon + Proxy）
+
+手动验证脚本 `scripts\verify.ts`，需要充分理解部署原理。
+
+注意事项：
+
+-   按照实现、信标、代理的顺序依次验证。
+-   实现合约不需要构建参数，只需要更换地址和 sourceName。
+-   信标、代理不需要更换 sourceName，只需要更换构建参数和地址。
+-   构建参数比较麻烦，注意看脚本注释。
+-   验证后代理合约自动识别到实现地址。
 
 ## 参考链接
 
