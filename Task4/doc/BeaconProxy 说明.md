@@ -1,4 +1,18 @@
-# INFT 部署在 Ganache_test 的一次成功结果
+# beacon 代理说明
+
+## beacon 代理
+
+**部署方法**：
+
+1. Deploy implementation
+2. Deploy beacon
+3. Deploy proxy with initialization data
+
+**请求路径**：请求--->proxy--->beacon--->实现
+**升级操作**: 先部署新的实现，调用 beacon 的 `upgradeTo`，传进新的实现。
+**优点**：方便升级，同一实现，可以多个代理，并指向同一个信标。升级只需告诉信标新的实现地址即可。升级前后代理地址和信标地址都不变。外部无感知。
+
+## INFT 部署在 Ganache_test 的一次成功结果
 
 执行 ignition deploy 三个或者最后一个，输出的最后是这样的。
 

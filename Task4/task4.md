@@ -6,7 +6,10 @@
 
 在测试网部署一个自己的 iNFT 合约，并 mint 一个 iNFT。
 提交 chain scan 上合约地址链接，以及 mint 的 inft 的链接
-https://chainscan-galileo.0g.ai/
+
+[0g-agent-nft (backup branch)](https://github.com/0gfoundation/0g-agent-nft/blob/backup)
+
+[测试网 chain scan](https://chainscan-galileo.0g.ai/)
 
 ## 加难度
 
@@ -14,25 +17,11 @@ https://chainscan-galileo.0g.ai/
 
 最大难点：Ignition buildModule 限制，涉及到合约变量的 log 打印以及条件逻辑都不能用。也不能用 `async/await` 异步操作。
 
-会报错 `inspect is not a function`
-
-大致原因是合约变量是延迟生成的。不能打印或者判断 `nft` 以及 `nft.address` 这种 Module 返回的变量及其属性。
+会报错 `inspect is not a function`。大致原因是合约变量是延迟生成的。不能打印或者判断 `nft` 以及 `nft.address` 这种 Module 返回的变量及其属性。
 
 如果一定需要，编写脚本调用 `ignition.deploy` 来执行复杂部署。参看[Complex deployments with scripts](https://hardhat.org/ignition/docs/guides/scripts)
 
 另外踩了一个坑，研究将近半天。hardhat 内部网络不会保存部署到 `ignition/deployments`，所以编写测试时升级操作，状态无法保留。就算使用 `useModule` 也不会发现现有部署。
-
-### beacon 代理
-
-**部署方法**：
-
-1. Deploy implementation
-2. Deploy beacon
-3. Deploy proxy with initialization data
-
-**请求路径**：请求--->proxy--->beacon--->实现
-**升级操作**: 先部署新的实现，调用 beacon 的 `upgradeTo`，传进新的实现。
-**优点**：方便升级，同一实现，可以多个代理，并指向同一个信标。升级只需告诉信标新的实现地址即可。升级前后代理地址和信标地址都不变。外部无感知。
 
 ## 部署方法
 
@@ -51,10 +40,6 @@ bunx hardhat ignition deploy ./ignition/modules/AgentNFT.ts --network ganache_te
 
 备注：也可以直接执行最后一个，因为 Hardhat 3 会检测到依赖的 Ignition Module 不存在，就会提前部署依赖合约。
 
-## 验证
-
-`AgentNFT-build-info-ganache_main.7z` 备份了 用 0.8.28 编译得到的 Standard Input。可以用于验证合约
-
 ## mint 操作
 
 -   需要修改里面的 CA 为 Agent NFT 的代理地址
@@ -66,6 +51,9 @@ bunx hardhat ignition deploy ./ignition/modules/AgentNFT.ts --network ganache_te
 ## 验证合约
 
 ZG_TESTNET_ETHERSCAN_API_URL = "https://chainscan-galileo.0g.ai/open/api"
+
+`AgentNFT-build-info-ganache_main.7z` 备份了 用 0.8.28 编译得到的 Standard Input。可以用于验证合约
+（AgentNFT + Verifier + TEEVerifier + Beacon + Proxy）
 
 ## 参考链接
 
@@ -81,16 +69,3 @@ ZG_TESTNET_ETHERSCAN_API_URL = "https://chainscan-galileo.0g.ai/open/api"
 -   [Upgrades Plugins Frequently Asked Questions](https://docs.openzeppelin.com/upgrades-plugins/faq)
 -   [Beacon Proxy(只看概念，后面内容不是 solidity)](https://docs.openzeppelin.com/contracts-stylus/beacon-proxy)
 -   [What is a Smart Contract Proxy Pattern?](https://www.cyfrin.io/blog/upgradeable-proxy-smart-contract-pattern)
-
-## TODO
-
--   beacon proxy 实践(hardhat-counter-upgradeable-beacon)
-    -   [x] 部署
-    -   [x] 升级
-    -   [x] 编写测试
-    -   [x] 在 blockscout 验证
--   [x] 整理环境变量
--   [x] 部署到 ganache 网络
-    -   [x] 在 blockscout 验证
--   [x] mint 脚本
--   [ ] transfer mock proofs
