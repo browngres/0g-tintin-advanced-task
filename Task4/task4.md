@@ -51,6 +51,10 @@ bunx hardhat ignition deploy ./ignition/modules/AgentNFT.ts --network ganache_te
 
 备注：也可以直接执行最后一个，因为 Hardhat 3 会检测到依赖的 Ignition Module 不存在，就会提前部署依赖合约。
 
+## 验证
+
+`AgentNFT-build-info-ganache_main.7z` 备份了 用 0.8.28 编译得到的 Standard Input。可以用于验证合约
+
 ## mint 操作
 
 -   需要修改里面的 CA 为 Agent NFT 的代理地址
@@ -75,6 +79,8 @@ ZG_TESTNET_ETHERSCAN_API_URL = "https://chainscan-galileo.0g.ai/open/api"
 -   [Using with Upgrades](https://docs.openzeppelin.com/contracts/5.x/upgradeable)
 -   [Writing Upgradeable Contracts](https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable)
 -   [Upgrades Plugins Frequently Asked Questions](https://docs.openzeppelin.com/upgrades-plugins/faq)
+-   [Beacon Proxy(只看概念，后面内容不是 solidity)](https://docs.openzeppelin.com/contracts-stylus/beacon-proxy)
+-   [What is a Smart Contract Proxy Pattern?](https://www.cyfrin.io/blog/upgradeable-proxy-smart-contract-pattern)
 
 ## TODO
 
@@ -84,3 +90,7 @@ ZG_TESTNET_ETHERSCAN_API_URL = "https://chainscan-galileo.0g.ai/open/api"
     -   [x] 编写测试
     -   [x] 在 blockscout 验证
 -   [x] 整理环境变量
+-   [x] 部署到 ganache 网络
+    -   [x] 在 blockscout 验证
+-   [x] mint 脚本
+-   [ ] transfer mock proofs
