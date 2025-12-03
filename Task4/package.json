@@ -1,7 +1,13 @@
 {
-  "name": "0g-inft-learn-",
+  "name": "0g-inft-learn",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy": "hardhat ignition deploy ./ignition/modules/AgentNFT.ts --network ganache_main",
+    "visualize": "hardhat ignition visualize ./ignition/modules/AgentNFT.ts",
+    "test": "hardhat test ./test/AgentNFT.js --gas-stats"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^4.0.2",
     "@nomicfoundation/hardhat-ignition": "^3.0.5",
