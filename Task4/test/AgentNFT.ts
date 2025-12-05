@@ -1,11 +1,13 @@
 import { expect } from "chai"
 import { network } from "hardhat"
-import type { Contract, ContractTransactionResponse, Signer } from "ethers"
+import type { ContractTransactionResponse, Signer } from "ethers"
 
 import agentNFTModule from "../ignition/modules/AgentNFT.js"
 
+import { AgentNFT, BeaconProxy, UpgradeableBeacon } from "../types/ethers-contracts/index.js"
+
 describe("AgentNFT test", function () {
-    let nft: Contract, beacon: Contract, proxy: Contract
+    let nft: AgentNFT, beacon: UpgradeableBeacon, proxy: BeaconProxy
 
     beforeEach(async function () {
         const { ignition } = await network.connect()
