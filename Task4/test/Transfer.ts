@@ -12,6 +12,7 @@ import type {
     TransferValidityProofStruct,
 } from "../types/ethers-contracts/contracts/AgentNFT.sol/AgentNFT.js"
 import type { TEEVerifier, Verifier, AgentNFT } from "../types/ethers-contracts/index.js"
+import { getBytes, hexlify } from "ethers"
 
 describe("AgentNFT Transfer test", function () {
     let tee: TEEVerifier
@@ -118,9 +119,10 @@ describe("AgentNFT Transfer test", function () {
         // sealedKey: 用 receiver 的钱包公钥加密的一个密钥。确保新数据只能 receiver 可以得到。
         // 涉及到使用公钥加密，这里直接 mock
         const sealedKey = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-        // !! encryptedPubKey 应该是 receiver 的公钥
+        // !! encryptedPubKey 应该是 receiver 的公钥 (全长 PublicKey ，去掉 0x04 前缀)
+
         const encryptedPubKey =
-            "0x0420b871f3ced029e14472ec4ebc3c0448164942b123aa6af91a3386c1c403e0ebd3b4a5752a2b6c49e574619e6aa0549eb9ccd036b9bbc507e1f7f9712a236092"
+            "0x9d9031e97dd78ff8c15aa86939de9b1e791066a0224e331bc962a2099a7b1f0464b8bbafe1535f2301c72c2cb3535b172da30b02686ab0393d348614f157fbdb"
         const ownershipProofNonce = "0x2345"
 
         const ownershipProof: OwnershipProofStruct = {
@@ -175,7 +177,10 @@ describe("AgentNFT Transfer test", function () {
         // 使用 sender 调用 nft 合约的 iTransfer 函数
         const tx = await nft.connect(sender).iTransfer(receiver.address, BigInt(0n), proofs)
         console.log(await tx.wait())
-
+        // 转移后 Owner 应该是 receiver
         expect(await nft.ownerOf(0)).to.equal(receiver.address)
+        // 转移后 tokenId 0的数据为 newDataHash
+        const dataHashAfterTransfer = (await nft.intelligentDatasOf(0))[0][1]
+        expect(dataHashAfterTransfer).to.equal(newDataHash)
     })
 })

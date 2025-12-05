@@ -9,10 +9,13 @@ contract SignMessage {
     bytes public encryptedPubKey = "";
     bytes public nonce = hex"1234";
     bytes public ownershipSealedKey = hex"1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
+    // 不能带 04 前缀
     bytes public ownershipEncryptedPubKey =
-        hex"0420b871f3ced029e14472ec4ebc3c0448164942b123aa6af91a3386c1c403e0ebd3b4a5752a2b6c49e574619e6aa0549eb9ccd036b9bbc507e1f7f9712a236092";
+        hex"9d9031e97dd78ff8c15aa86939de9b1e791066a0224e331bc962a2099a7b1f0464b8bbafe1535f2301c72c2cb3535b172da30b02686ab0393d348614f157fbdb";
     bytes public ownershipNonce = hex"2345";
 
+
+    uint256 public length = 0;
     // function getMessageHash() public view returns (string memory) {
     // function getMessageHash() public view returns (uint256) {
     function getMessageHash() public view returns (bytes32) {
@@ -81,5 +84,12 @@ contract SignMessage {
 
         return messageHash;
         // 得到 0xf8fe4ca6806ad0d76453123365c9c8583f34ce718708b33510ec0cd1aa4031be
+    }
+
+    function pubKeyToAddress(bytes memory pubKey) public returns (address) {
+        length = pubKey.length;
+        // require(pubKey.length == 64, "Invalid public key length");
+        // bytes32 hash = keccak256(pubKey);
+        // return address(uint160(uint256(hash)));
     }
 }
