@@ -47,6 +47,11 @@ export default defineConfig({
       chainType: "l1",
       // saveDeployments: true,  // hardhat 3 没有这个选项
     },
+    hardhat_node: {
+      type: "http",
+      chainType: "l1",
+      url: "http://127.0.0.1:8545/",
+    },
     ganache_main: {
       type: "http",
       chainType: "l1",

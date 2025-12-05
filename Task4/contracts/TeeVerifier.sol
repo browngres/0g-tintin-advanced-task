@@ -58,7 +58,8 @@ contract TEEVerifier is Initializable {
         bytes memory quote
     ) internal pure returns (address) {
         // mock, need to extract from quote
-        return 0x168752bb1d04b4c93F3ED0a6e8F84534b16F2014;
+        // hardhat public dev account #3
+        return 0x90F79bf6EB2c4f870365E785982E1f101E93b906;
     }
 
     function _extractMeasurements(
