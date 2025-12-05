@@ -8,6 +8,10 @@ contract SignMessage {
     bytes32 public newDataHash = 0xd0c8707c906a797561008f61c112c70c07c0e57952e0348106ae2b8be92a5d59;
     bytes public encryptedPubKey = "";
     bytes public nonce = hex"1234";
+    bytes public ownershipSealedKey = hex"1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
+    bytes public ownershipEncryptedPubKey =
+        hex"0420b871f3ced029e14472ec4ebc3c0448164942b123aa6af91a3386c1c403e0ebd3b4a5752a2b6c49e574619e6aa0549eb9ccd036b9bbc507e1f7f9712a236092";
+    bytes public ownershipNonce = hex"2345";
 
     // function getMessageHash() public view returns (string memory) {
     // function getMessageHash() public view returns (uint256) {
@@ -34,5 +38,48 @@ contract SignMessage {
 
         return messageHash;
         // 得到 0xccf3beecd4cd85a79829ccbb1797ea926bf81f71f98c2f56e27400fd0da8c0f6
+    }
+
+    function getOwnershipMessageHash() public view returns (bytes32) {
+        // function getOwnershipMessageHash() public view returns (string memory) {
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n66",
+                Strings.toHexString(
+                    uint256(
+                        keccak256(
+                            abi.encodePacked(
+                                oldDataHash,
+                                newDataHash,
+                                ownershipSealedKey,
+                                ownershipEncryptedPubKey,
+                                ownershipNonce
+                            )
+                        )
+                    ),
+                    32
+                )
+            )
+        );
+
+        // return
+        //     Strings.toHexString(
+        //         uint256(
+        //             keccak256(
+        //                 abi.encodePacked(
+        //                     oldDataHash,
+        //                     newDataHash,
+        //                     ownershipSealedKey,
+        //                     ownershipEncryptedPubKey,
+        //                     ownershipNonce
+        //                 )
+        //             )
+        //         ),
+        //         32
+        //     );
+        //得到 0x8e362cca1d69ca441ee9c7ad4c4f2a1a8133b7c3ec1aec5f22b75c3d2aba41a6
+
+        return messageHash;
+        // 得到 0xf8fe4ca6806ad0d76453123365c9c8583f34ce718708b33510ec0cd1aa4031be
     }
 }

@@ -11,6 +11,14 @@ async function main() {
     console.log(await signMessage.encryptedPubKey())
     console.log(await signMessage.nonce())
     console.log(await signMessage.getMessageHash())
+
+    console.log("======================");
+    console.log(await signMessage.ownershipSealedKey())
+    console.log(await signMessage.ownershipEncryptedPubKey())
+    console.log(await signMessage.ownershipNonce())
+    console.log(await signMessage.getOwnershipMessageHash())
+
+
 }
 
 main().catch((error) => {

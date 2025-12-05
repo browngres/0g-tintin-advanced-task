@@ -28,8 +28,8 @@ describe("AgentNFT Transfer test", function () {
         console.log("nft CA:", nft.target)
     })
 
+    // 避免 hardhat 内部网没有保存部署的结果，这里直接使用同一个 it
     it("Transfer", async function () {
-        // 避免 hardhat 内部网没有保存部署的结果，这里直接使用同一个 it
         // accounts
         const { ethers } = await network.connect()
         // !! 使用 hardhat 模拟网络进行测试，或者在网络配置中补充账户
@@ -39,9 +39,9 @@ describe("AgentNFT Transfer test", function () {
 
         // deploy
         const { ignition } = await network.connect()
-        ;({ tee } = await ignition.deploy(TEEVerifierModule)) // 这个分号不能少
-        ;({ verifier } = await ignition.deploy(verifierModule))
-        ;({ nft } = await ignition.deploy(agentNFTModule))
+            ; ({ tee } = await ignition.deploy(TEEVerifierModule)) // 这个分号不能少
+            ; ({ verifier } = await ignition.deploy(verifierModule))
+            ; ({ nft } = await ignition.deploy(agentNFTModule))
 
         // mock data
         const dataDescription = "Some awesome intelligent data."
@@ -55,8 +55,6 @@ describe("AgentNFT Transfer test", function () {
 
         // mint for sender
         await nft.mint(iDatas, sender, { value: ethers.parseEther("0") })
-
-        // check minted owner
         expect(await nft.ownerOf(0)).to.equal(sender.address)
 
         // keccak256("0x1234567890abcdef1234567890abcdef12345678")
@@ -73,6 +71,15 @@ describe("AgentNFT Transfer test", function () {
         }
 
         // 根据 `Verifier.sol` 中的`verifyAccessibility` 构建消息
+        const accessMessageHash = ethers.hashMessage(
+            ethers.solidityPackedKeccak256(
+                ["bytes32", "bytes32", "bytes", "bytes"],
+                [accProof.oldDataHash, accProof.newDataHash, accProof.encryptedPubKey, accProof.nonce]
+            )
+        )
+
+        /*
+        // 等价写法
         const accessMessage = ethers.solidityPacked(
             ["string", "string"],
             [
@@ -82,12 +89,16 @@ describe("AgentNFT Transfer test", function () {
                         ["bytes32", "bytes32", "bytes", "bytes"],
                         [accProof.oldDataHash, accProof.newDataHash, accProof.encryptedPubKey, accProof.nonce]
                     )
-                    .slice(2),
+                    ,
             ]
         )
-        // 考虑使用 ethers.hashMessage()
         // 计算最终的 messageHash
         const accessMessageHash = ethers.keccak256(accessMessage)
+        */
+
+        // console.log(accessMessageHash);
+        // 根据摘录并执行合约代码得出 accessMessageHash 结果应该为：
+        // 0xccf3beecd4cd85a79829ccbb1797ea926bf81f71f98c2f56e27400fd0da8c0f6
 
         // access 签名来自 receiver
         const accessSignature = await receiver.connect(ethers.provider).signMessage(ethers.getBytes(accessMessageHash))
@@ -96,7 +107,9 @@ describe("AgentNFT Transfer test", function () {
         // sealedKey: 用 receiver 的钱包公钥加密的一个密钥。确保新数据只能 receiver 可以得到。
         // 涉及到使用公钥加密，这里直接 mock
         const sealedKey = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-        const encryptedPubKey = "0xabcd"
+        // !! encryptedPubKey 应该是 receiver 的公钥
+        const encryptedPubKey =
+            "0x0420b871f3ced029e14472ec4ebc3c0448164942b123aa6af91a3386c1c403e0ebd3b4a5752a2b6c49e574619e6aa0549eb9ccd036b9bbc507e1f7f9712a236092"
         const ownershipProofNonce = "0x2345"
 
         const ownershipProof: OwnershipProofStruct = {
@@ -110,27 +123,20 @@ describe("AgentNFT Transfer test", function () {
         }
 
         // 根据 `Verifier.sol` 中的`verifyOwnershipProof` 构建消息
-        const ownershipMessage = ethers.solidityPacked(
-            ["string", "string"],
-            [
-                "\x19Ethereum Signed Message:\n66",
-                ethers
-                    .solidityPackedKeccak256(
-                        ["bytes32", "bytes32", "bytes", "bytes", "bytes"],
-                        [
-                            ownershipProof.oldDataHash,
-                            ownershipProof.newDataHash,
-                            ownershipProof.sealedKey,
-                            ownershipProof.encryptedPubKey,
-                            ownershipProof.nonce,
-                        ]
-                    )
-                    .substring(2),
-            ]
+        const ownershipMessageHash = ethers.hashMessage(
+            ethers.solidityPackedKeccak256(
+                ["bytes32", "bytes32", "bytes", "bytes", "bytes"],
+                [
+                    ownershipProof.oldDataHash,
+                    ownershipProof.newDataHash,
+                    ownershipProof.sealedKey,
+                    ownershipProof.encryptedPubKey,
+                    ownershipProof.nonce,
+                ]
+            )
         )
-        // 考虑使用 ethers.hashMessage()
-        // 计算最终的 messageHash
-        const ownershipMessageHash = ethers.keccak256(ownershipMessage)
+        // console.log(ownershipMessageHash)
+        // 0xf8fe4ca6806ad0d76453123365c9c8583f34ce718708b33510ec0cd1aa4031be
 
         // ownership 签名来自 tee
         const ownershipSignature = await tee_signer
@@ -140,7 +146,7 @@ describe("AgentNFT Transfer test", function () {
 
         const proofs: TransferValidityProofStruct[] = [{ accessProof: accProof, ownershipProof: ownershipProof }]
         // const proofs: TransferValidityProofStruct[] = []
-        console.log(verifier.attestationContract)
+        // console.log(verifier.attestationContract)
 
         // 使用 sender 调用 nft 合约的 iTransfer 函数
         const tx = await nft.connect(sender).iTransfer(receiver.address, BigInt(0n), proofs)
